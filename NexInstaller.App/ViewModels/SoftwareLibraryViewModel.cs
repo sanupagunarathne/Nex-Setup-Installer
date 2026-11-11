@@ -33,7 +33,7 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
         "\n\nFiles (declared SHA-256; not yet verified):\n" + string.Join("\n", Package.Manifest.Files.Select(file => $"{file.Path}\n{file.Sha256}"));
 }
 
-public sealed class SoftwareLibraryViewModel() : PageViewModel("Software Library", "Discover, inspect, and select software in your offline library.")
+public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose the apps this laptop needs, then review your install list.")
 {
     public InstallationQueueViewModel? InstallationQueue { get; set; }
     public RelayCommand AddToQueueCommand => new(() => InstallationQueue?.AddSoftware(SelectedPackages));

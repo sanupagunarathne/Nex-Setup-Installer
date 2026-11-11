@@ -6,7 +6,7 @@ public abstract class PageViewModel(string title, string subtitle) : ObservableO
     public string Subtitle { get; } = subtitle;
 }
 
-public sealed class DashboardViewModel(ShellViewModel shell) : PageViewModel("Dashboard", "Your offline installation workspace.")
+public sealed class DashboardViewModel(ShellViewModel shell) : PageViewModel("Home", "Your offline installation workspace.")
 {
     public ShellViewModel Shell { get; } = shell;
 }

@@ -1,79 +1,31 @@
-<UserControl x:Class="NexInstaller.App.Views.DashboardView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-<StackPanel>
-  <Border Style="{StaticResource Card}" Margin="0,0,0,24">
-    <Grid>
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-      <StackPanel>
-        <TextBlock Text="READY WHEN YOU ARE" Style="{StaticResource Eyebrow}" Foreground="{StaticResource AccentBrush}" />
-        <TextBlock Text="One drive. Every workstation." FontSize="24" FontWeight="SemiBold" Margin="0,10,0,8" />
-        <TextBlock Text="Keep your tools close. Build a portable library for your next setup." Style="{StaticResource SecondaryText}" Margin="0,0,20,0" />
-      </StackPanel>
-      <Border Grid.Column="1" Style="{StaticResource InsetCard}" Padding="18,12" VerticalAlignment="Top">
-        <TextBlock Text="100% OFFLINE" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="SemiBold" />
-      </Border>
-    </Grid>
-  </Border>
-  <TextBlock Text="Library overview" Style="{StaticResource SectionTitle}" Margin="0,0,0,16" />
-  <WrapPanel><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
-      <StackPanel>
-        <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="AVAILABLE SOFTWARE" Style="{StaticResource Eyebrow}" />
-        <TextBlock Text="{Binding Shell.AvailablePackageCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="Validated metadata and paths" Style="{StaticResource Caption}" />
-      </StackPanel>
-    </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
-      <StackPanel>
-        <TextBlock Text="&#xE8D2;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="FONT FILES" Style="{StaticResource Eyebrow}" />
-        <TextBlock Text="{Binding Shell.FontCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="TTF and OTF files" Style="{StaticResource Caption}" />
-      </StackPanel>
-    </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
-      <StackPanel>
-        <TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="SAVED PRESETS" Style="{StaticResource Eyebrow}" />
-        <TextBlock Text="{Binding Shell.PresetCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="Validated saved presets" Style="{StaticResource Caption}" />
-      </StackPanel>
-    </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
-      <StackPanel>
-        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="RECENT SESSIONS" Style="{StaticResource Eyebrow}" />
-        <TextBlock Text="{Binding Shell.SessionCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="Last 30 days · recorded sessions" Style="{StaticResource Caption}" />
-      </StackPanel>
-    </Border></WrapPanel>
-  <TextBlock Text="Software count excludes invalid, missing, duplicate-ID, and incompatible packages. Fonts show file counts; presets are validated JSON; sessions cover the last 30 days. Hashes are not yet verified." Style="{StaticResource Caption}" Margin="0,0,0,24" />
-  <Grid Margin="0,0,0,24">
-    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-    <Border Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="Grow your library" Style="{StaticResource SectionTitle}" />
-        <TextBlock Text="Manage your local collection of installer packages." Style="{StaticResource SecondaryText}" Margin="0,8,0,18" />
-        <Button Content="Open package manager →" Command="{Binding Shell.OpenPackagesCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" />
-        <TextBlock Text="EXE / MSI / folder imports available" Style="{StaticResource Caption}" Margin="0,12,0,0" />
-      </StackPanel>
-    </Border>
-    <Border Grid.Column="2" Style="{StaticResource Card}">
-      <StackPanel>
-        <TextBlock Text="Set up your workflow" Style="{StaticResource SectionTitle}" />
-        <TextBlock Text="Organize repeat installations with saved presets." Style="{StaticResource SecondaryText}" Margin="0,8,0,18" />
-        <Button Content="Open installation presets →" Command="{Binding Shell.OpenPresetsCommand}" HorizontalAlignment="Left" />
-        <TextBlock Text="Saved presets are ready to launch" Style="{StaticResource Caption}" Margin="0,12,0,0" />
-        <ComboBox ItemsSource="{Binding Shell.Presets.Presets}" SelectedItem="{Binding Shell.Presets.SelectedPreset}" DisplayMemberPath="Name" Margin="0,12,0,8" AutomationProperties.Name="Quick preset selection"/>
-        <Button Content="Start saved preset" Command="{Binding Shell.Presets.StartCommand}" HorizontalAlignment="Left"/>
-        <TextBlock Text="{Binding Shell.Presets.Status}" Style="{StaticResource Caption}" Margin="0,8,0,0"/>
-      </StackPanel>
-    </Border>
-  </Grid>
-  <Border Style="{StaticResource Card}">
-    <StackPanel>
-      <TextBlock Text="Library status" Style="{StaticResource SectionTitle}" />
-      <TextBlock Text="{Binding Shell.LibraryStatus}" Style="{StaticResource SecondaryText}" Margin="0,10,0,12" />
-      <TextBlock Text="{Binding Shell.LastRefreshed, StringFormat='Last scan: {0}'}" Style="{StaticResource Caption}" />
-    </StackPanel>
-  </Border>
-</StackPanel>
+<UserControl x:Class="NexInstaller.App.Views.DashboardView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+ <Grid>
+  <Grid.RowDefinitions><RowDefinition Height="0.95*"/><RowDefinition Height="Auto"/><RowDefinition Height="0.7*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <StackPanel Grid.Row="1" HorizontalAlignment="Center" MaxWidth="720" Margin="16,0">
+   <TextBlock Text="Your software, ready to go." FontSize="32" FontWeight="SemiBold" TextAlignment="Center"/>
+   <TextBlock Text="Keep your installers and fonts together on one USB drive.&#10;Choose what each laptop needs, then follow the installation steps." Style="{StaticResource SecondaryText}" FontSize="15" TextAlignment="Center" Margin="0,20,0,0"/>
+  </StackPanel>
+  <UniformGrid Grid.Row="3" Columns="3" Margin="0,24,0,16">
+   <Button Command="{Binding Shell.OpenAppsCommand}" HorizontalContentAlignment="Stretch" Background="{StaticResource SurfaceBrush}" Padding="16" Margin="0,0,8,0" ToolTip="Open Apps">
+    <StackPanel><TextBlock Text="Apps"/><TextBlock Text="{Binding Shell.AvailablePackageCount}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+   </Button>
+   <Button Command="{Binding Shell.OpenFontsCommand}" HorizontalContentAlignment="Stretch" Background="{StaticResource SurfaceBrush}" Padding="16" Margin="4,0,4,0" ToolTip="Open Fonts">
+    <StackPanel><TextBlock Text="Fonts"/><TextBlock Text="{Binding Shell.FontCount}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+   </Button>
+   <Button Command="{Binding Shell.OpenPresetsCommand}" HorizontalContentAlignment="Stretch" Background="{StaticResource SurfaceBrush}" Padding="16" Margin="8,0,0,0" ToolTip="Open Saved setups">
+    <StackPanel><TextBlock Text="Saved setups"/><TextBlock Text="{Binding Shell.PresetCount}" FontSize="28" FontWeight="SemiBold" Margin="0,6,0,0"/></StackPanel>
+   </Button>
+  </UniformGrid>
+  <StackPanel Grid.Row="4" Margin="0,0,0,8">
+   <TextBlock Text="Counts reflect your saved library. Files are checked again before installation." Style="{StaticResource Caption}" TextAlignment="Center"/>
+   <Expander Header="Library status" Margin="0,12,0,0" Foreground="{StaticResource SecondaryBrush}" FontSize="11">
+    <ScrollViewer MaxHeight="90" VerticalScrollBarVisibility="Auto"><StackPanel>
+     <TextBlock Text="{Binding Shell.LibraryStatus}" Style="{StaticResource Caption}"/>
+     <TextBlock Text="{Binding Shell.LastRefreshed, StringFormat='Last checked: {0}'}" Style="{StaticResource Caption}"/>
+     <TextBlock Text="{Binding Shell.SessionCount, StringFormat='Recent installation records (30 days): {0}'}" Style="{StaticResource Caption}"/>
+     <TextBlock Text="{Binding Shell.LibraryRoot}" Style="{StaticResource Caption}"/>
+    </StackPanel></ScrollViewer>
+   </Expander>
+  </StackPanel>
+ </Grid>
 </UserControl>

@@ -29,7 +29,7 @@ public sealed class PresetsViewModel : ImportWorkspace
     private bool dirty;
     private InstallationPreset? selected;
     public PresetsViewModel(ShellViewModel shell, IPresetService? service, IPresetsHistoryDialogs? dialogs)
-        : base("Installation Presets", "Save repeatable software and font setups, then start them with fresh checks.")
+        : base("Saved setups", "Keep your usual app and font choices ready to reuse.")
     {
         this.shell = shell; this.service = service; this.dialogs = dialogs;
         Items.CollectionChanged += (_, _) => { if (!loading) MarkDirty(); };
@@ -39,7 +39,7 @@ public sealed class PresetsViewModel : ImportWorkspace
         {
             if (IsBusy) return;
             var font = shell.FontLibrary.SelectedFont;
-            if (font is null) { Status = "Select a font row in Font Library first."; return; }
+            if (font is null) { Status = "Select a font row in Fonts first."; return; }
             Add(new() { Kind = InstallationKind.Font, FontRelativePath = Path.GetRelativePath(shell.LibraryRoot, font.Path).Replace('\\', '/'), Sha256 = font.Sha256 });
         });
         SaveCommand = new(SaveAsync, ex => Status = ex.Message);
@@ -132,7 +132,7 @@ public sealed class HistoryViewModel : ImportWorkspace
     private IReadOnlyList<string> warnings = [];
     private string search = "";
     private HistorySession? selected;
-    public HistoryViewModel(IHistoryService? service, IPresetsHistoryDialogs? dialogs) : base("Installation History", "Review recorded outcomes and export local JSON or CSV reports.")
+    public HistoryViewModel(IHistoryService? service, IPresetsHistoryDialogs? dialogs) : base("Past installs", "See what was installed and save a report when needed.")
     {
         this.service = service; this.dialogs = dialogs;
         RefreshCommand = new(() => Work(_ => ReloadAsync()), ex => Status = ex.Message);
