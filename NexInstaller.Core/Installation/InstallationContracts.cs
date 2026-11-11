@@ -47,3 +47,9 @@ public interface IInstallationEngine
     Task<IReadOnlyList<InstallationResult>> RunAsync(IReadOnlyList<InstallationRequest> requests, bool continueOnFailure,
         IProgress<InstallationProgress>? progress = null, CancellationToken token = default);
 }
+
+public sealed class InstallationSessionException(IReadOnlyList<InstallationResult> results, Exception inner)
+    : IOException("Installation result logging failed. Queue stopped; inspect completed results before retrying.", inner)
+{
+    public IReadOnlyList<InstallationResult> Results { get; } = results.ToArray();
+}

@@ -14,7 +14,7 @@ public sealed class InstallationEngine(IInstallationPreflight preflight, IInstal
         {
             var queue = requests.ToArray();
             if (queue.Length == 0) return results;
-            if (queue.Length > 1000 || queue.Distinct().Count() != queue.Length) throw new ArgumentException("Queue must contain up to 1000 distinct items.");
+            if (queue.Length > 1000 || queue.Select(item => item.Id).Distinct(StringComparer.OrdinalIgnoreCase).Count() != queue.Length) throw new ArgumentException("Queue must contain up to 1000 distinct items.");
             journal.Write(session, "session.start", new { count = queue.Length, continueOnFailure });
             foreach (var request in queue)
             {
@@ -37,9 +37,9 @@ public sealed class InstallationEngine(IInstallationPreflight preflight, IInstal
                         progress?.Report(new(results.Count, queue.Length, "Installing " + plan.Name + ". Stop queue waits for this item to finish."));
                         var code = await executor.ExecuteAsync(current);
                         var restart = plan.RestartCodes.Contains(code) || code == 1641;
-                        var outcome = code == 1641 ? InstallationOutcome.RestartInitiated :
+                        var outcome = plan.InstallerType == Packages.InstallerType.Msi && code == 1602 ? InstallationOutcome.Cancelled : code == 1641 ? InstallationOutcome.RestartInitiated :
                             plan.SuccessCodes.Contains(code) || plan.RestartCodes.Contains(code) ? InstallationOutcome.Succeeded : InstallationOutcome.Failed;
-                        var message = code == 1641 ? "Installer reported a restart was initiated. NEX did not request a restart; queue stopped." :
+                        var message = outcome == InstallationOutcome.Cancelled ? "Windows Installer reported user cancellation. Queue stopped." : code == 1641 ? "Installer reported a restart was initiated. NEX did not request a restart; queue stopped." :
                             outcome == InstallationOutcome.Succeeded ? restart ? "Completed. Windows restart required; NEX will not restart it." : "Completed." : $"Installer failed with exit code {code}.";
                         if (plan.Manual && plan.InstallerType == Packages.InstallerType.Exe && outcome == InstallationOutcome.Succeeded &&
                             !await interaction.ConfirmManualCompletionAsync(plan, code))
@@ -52,12 +52,14 @@ public sealed class InstallationEngine(IInstallationPreflight preflight, IInstal
                 catch (Exception ex)
                 { result = new(request.Id, InstallationOutcome.Failed, null, false, ex.Message, started, DateTimeOffset.UtcNow); }
                 results.Add(result);
-                journal.Write(session, "item.result", result);
+                try { journal.Write(session, "item.result", result); }
+                catch (Exception ex) { throw new InstallationSessionException(results.AsReadOnly(), ex); }
                 progress?.Report(new(results.Count, queue.Length, result.Id + ": " + result.Message));
                 if (token.IsCancellationRequested || result.Outcome is InstallationOutcome.Declined or InstallationOutcome.Cancelled or InstallationOutcome.RestartInitiated ||
                     (!continueOnFailure && result.Outcome == InstallationOutcome.Failed)) break;
             }
-            journal.Write(session, "session.complete", new { completed = results.Count, requested = queue.Length, restartRequired = results.Any(r => r.RestartRequired) });
+            try { journal.Write(session, "session.complete", new { completed = results.Count, requested = queue.Length, restartRequired = results.Any(r => r.RestartRequired) }); }
+            catch (Exception ex) { throw new InstallationSessionException(results.AsReadOnly(), ex); }
             return results.AsReadOnly();
         }
         finally { gate.Release(); }
