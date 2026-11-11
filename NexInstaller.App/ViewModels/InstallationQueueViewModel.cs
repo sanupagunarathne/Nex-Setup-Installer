@@ -72,18 +72,28 @@ public sealed class InstallationQueueViewModel : ObservableObject
         var snapshot = Items.ToArray(); var continueOnFailure = ContinueOnFailure;
         IsBusy = true; Percent = 0; Results.Clear();
         foreach (var item in snapshot) item.Status = "Waiting";
+        var progressGate = new object(); var acceptProgress = true;
+        void FinishProgress() { lock (progressGate) acceptProgress = false; }
         try
         {
-            var progress = new Progress<InstallationProgress>(step => { if (!IsBusy) return; Percent = step.Total == 0 ? 0 : 100d * step.Completed / step.Total; Status = step.Stage; });
+            var progress = new Progress<InstallationProgress>(step =>
+            {
+                lock (progressGate)
+                {
+                    if (!acceptProgress) return;
+                    Percent = step.Total == 0 ? 0 : 100d * step.Completed / step.Total; Status = step.Stage;
+                }
+            });
             var results = await engine.RunAsync(snapshot.Select(item => item.Request).ToArray(), continueOnFailure, progress, source.Token);
+            FinishProgress();
             ApplyResults(snapshot, results);
             Status = $"{results.Count}/{snapshot.Length} processed. " + (results.Any(result => result.RestartRequired) ? "Restart required or reported by an installer. NEX will not restart Windows." : "No restart reported.") +
                 " Clear or remove completed items before starting another queue. Re-running requires fresh preflight and confirmations.";
         }
-        catch (InstallationSessionException ex) { ApplyResults(snapshot, ex.Results); Status = ex.Message; }
-        catch (OperationCanceledException) { Status = "Queue cancelled before execution."; }
-        catch (Exception ex) { Status = "Queue stopped: " + ex.Message + " Check installation logs before retrying; an item may already have executed."; }
-        finally { cancellation = null; IsBusy = false; if (AfterRunAsync is not null) await AfterRunAsync(); }
+        catch (InstallationSessionException ex) { FinishProgress(); ApplyResults(snapshot, ex.Results); Status = ex.Message; }
+        catch (OperationCanceledException) { FinishProgress(); Status = "Queue cancelled before execution."; }
+        catch (Exception ex) { FinishProgress(); Status = "Queue stopped: " + ex.Message + " Check installation logs before retrying; an item may already have executed."; }
+        finally { FinishProgress(); cancellation = null; IsBusy = false; if (AfterRunAsync is not null) await AfterRunAsync(); }
     }
     private void ApplyResults(InstallationQueueItem[] snapshot, IReadOnlyList<InstallationResult> results)
     {
