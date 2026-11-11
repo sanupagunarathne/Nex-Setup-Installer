@@ -5,13 +5,14 @@ public sealed class InstallationEngineTests
     private sealed class Preflight : IInstallationPreflight
     {
         public bool Fail { get; set; }
+        public NexInstaller.Core.Packages.InstallerType? Type { get; set; }
         public bool ChangeAfterConfirmation { get; set; }
         private int calls;
         public Task<InstallationPlan> PrepareAsync(InstallationRequest request, IProgress<string>? progress, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
             if (Fail) throw new InvalidDataException("hash mismatch");
-            return Task.FromResult(new InstallationPlan { Request = request, Name = request.Id, FilePath = "never-executed.exe", WorkingDirectory = ".", Fingerprint = request.Id + (ChangeAfterConfirmation ? ++calls : 0) });
+            return Task.FromResult(new InstallationPlan { Request = request, Name = request.Id, FilePath = "never-executed.exe", WorkingDirectory = ".", Fingerprint = request.Id + (ChangeAfterConfirmation ? ++calls : 0), InstallerType = Type });
         }
     }
     private sealed class Executor(params int[] codes) : IInstallationExecutor
@@ -29,8 +30,9 @@ public sealed class InstallationEngineTests
     private sealed class Journal : IInstallationJournal
     {
         public bool Fail { get; set; }
+        public bool FailOnResult { get; set; }
         public List<string> Events { get; } = [];
-        public void Write(string sessionId, string eventName, object details) { if (Fail) throw new IOException("Logging unavailable"); Events.Add(eventName); }
+        public void Write(string sessionId, string eventName, object details) { if (Fail || (FailOnResult && eventName == "item.result")) throw new IOException("Logging unavailable"); Events.Add(eventName); }
     }
     private static InstallationRequest[] Queue() => [new(InstallationKind.Software, "one"), new(InstallationKind.Software, "two")];
     [Fact]
@@ -80,6 +82,30 @@ public sealed class InstallationEngineTests
         var executor = new Executor(0);
         var result = Assert.Single(await new InstallationEngine(new Preflight { ChangeAfterConfirmation = true }, executor, new Interaction(), new Journal()).RunAsync(Queue(), false));
         Assert.Equal(InstallationOutcome.Failed, result.Outcome); Assert.Equal(0, executor.Calls);
+    }
+    [Fact]
+    public async Task MsiCancellationStopsEvenWhenContinuationIsEnabled()
+    {
+        var executor = new Executor(1602, 0);
+        var results = await new InstallationEngine(new Preflight { Type = NexInstaller.Core.Packages.InstallerType.Msi }, executor, new Interaction(), new Journal()).RunAsync(Queue(), true);
+        Assert.Equal(InstallationOutcome.Cancelled, Assert.Single(results).Outcome);
+        Assert.Equal(1, executor.Calls);
+    }
+    [Fact]
+    public async Task JournalFailureAfterExecutionRetainsCompletedResultsAndStops()
+    {
+        var executor = new Executor(3010, 0);
+        var exception = await Assert.ThrowsAsync<InstallationSessionException>(() => new InstallationEngine(new Preflight(), executor, new Interaction(), new Journal { FailOnResult = true }).RunAsync(Queue(), true));
+        Assert.Equal(3010, Assert.Single(exception.Results).ExitCode); Assert.True(exception.Results[0].RestartRequired);
+        Assert.Equal(1, executor.Calls);
+    }
+    [Fact]
+    public async Task AmbiguousIdsAcrossKindsAreRejectedBeforeLaunching()
+    {
+        var executor = new Executor(0, 0);
+        await Assert.ThrowsAsync<ArgumentException>(() => new InstallationEngine(new Preflight(), executor, new Interaction(), new Journal()).RunAsync(
+            [new(InstallationKind.Software, "same"), new(InstallationKind.Font, "same", "fonts/test.ttf", "hash")], false));
+        Assert.Equal(0, executor.Calls);
     }
     [Fact]
     public async Task MissingJournalBlocksExecution()

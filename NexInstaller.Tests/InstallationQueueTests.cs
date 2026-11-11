@@ -40,6 +40,20 @@ public sealed class InstallationQueueTests
         vm.AddFont(font, root, true); Assert.Equal(1, vm.Count);
         Assert.Equal(InstallationKind.Font, Assert.Single(vm.Items).Request.Kind);
     }
+    private sealed class FailedJournalEngine : IInstallationEngine
+    {
+        public Task<IReadOnlyList<InstallationResult>> RunAsync(IReadOnlyList<InstallationRequest> requests, bool continueOnFailure, IProgress<InstallationProgress>? progress = null, CancellationToken token = default) =>
+            Task.FromException<IReadOnlyList<InstallationResult>>(new InstallationSessionException(
+                [new(requests[0].Id, InstallationOutcome.Succeeded, 3010, true, "Restart required", DateTimeOffset.UtcNow, DateTimeOffset.UtcNow)], new IOException("Simulated failure")));
+    }
+    [Fact]
+    public async Task ResultLoggingFailureStillDisplaysCompletedExitCode()
+    {
+        var vm = new InstallationQueueViewModel(new FailedJournalEngine()); vm.AddSoftware([Row()]);
+        await vm.StartAsync();
+        Assert.Equal(3010, Assert.Single(vm.Results).ExitCode); Assert.Contains("logging failed", vm.Status);
+        Assert.False(vm.IsBusy);
+    }
     [Fact]
     public async Task BusyQueueCannotBeChangedOrCleared()
     {

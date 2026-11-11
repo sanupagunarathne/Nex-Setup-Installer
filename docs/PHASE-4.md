@@ -44,6 +44,7 @@ and 1641 reports that the installer initiated a restart and stops the queue. NEX
 never calls restart APIs. Manual third-party installers may offer a reboot: decline
 that option. Unattended profiles must be verified to suppress reboot. NEX cannot
 stop a third-party program that ignores its own documented suppression options.
+MSI exit 1602 is cancellation and always stops the queue, including when continuation is enabled.
 Nonstandard vendor exit codes must be reviewed in the profile, not guessed.
 
 ## Verified unattended profiles
@@ -101,7 +102,7 @@ session/event IDs, package IDs, outcomes, exit codes, restart requirements and p
 fingerprints. Customer identity and actual command arguments are not logged by NEX.
 NEX records its own lifecycle/results, not vendor stdout/stderr or private MSI logs.
 Both logging destinations unavailable stops further launches. If logging fails
-after execution, inspect the completed item before retrying; execution is not rolled
+after execution, completed results and exit codes remain visible in the UI. Inspect the completed item before retrying; execution is not rolled
 back. Full history browsing, export and presets are Phase 5 work. Log retention,
 portable publication and complete Windows release acceptance are Phase 6 work.
 
@@ -115,6 +116,7 @@ with 0 warnings/errors before each feature merge:
 | feat/installation-engine | 102 |
 | feat/windows-installation-handlers | 107 |
 | feat/installation-queue-ui | 110 |
+| fix/installation-result-handling | 114 |
 
 Tests use fake process executors and fake font registration APIs. No installers,
 UAC prompts, font registration, real OS font modifications, or restarts occur in
@@ -122,6 +124,7 @@ tests. Coverage includes queue ordering/failure policy, decline and preflight bl
 hash tampering, profile bindings/evidence, confirmation-time plan changes, restart
 exit codes, cancellation after current execution, font conflict/rollback, log
 fallback/failure, queue deduplication, font license gating, and queue UI state.
+Three regression tests first reproduced MSI cancellation continuing, ambiguous cross-kind IDs, and losing completed results on logging failure. The fix maps MSI cancellation correctly, rejects ambiguous IDs, and retains partial results in a typed exception and UI. All regression checks then passed.
 C# and WPF XAML compile here; native process launching, UAC, SmartScreen behavior,
 Windows read-sharing enforcement, shell quoting, font rendering/registration,
 registry behavior, actual offline vendor installers and physical USBs are not
