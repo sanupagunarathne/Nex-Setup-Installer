@@ -2,6 +2,9 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using NexInstaller.App.ViewModels;
 using NexInstaller.Core.Library;
+using NexInstaller.Core.Packages;
+using NexInstaller.Infrastructure.Packages;
+using System.Runtime.InteropServices;
 using NexInstaller.Core.Logging;
 using NexInstaller.Core.Navigation;
 using NexInstaller.Infrastructure.Configuration;
@@ -25,6 +28,16 @@ public partial class App : Application
             registrations.AddSingleton(configuration);
             registrations.AddSingleton(configuration.Paths);
             registrations.AddSingleton<NavigationState>();
+            registrations.AddSingleton<IPackageManifestReader, JsonPackageManifestReader>();
+            registrations.AddSingleton<IPackageCatalogService>(provider => new FileSystemPackageCatalogService(
+                configuration.Paths, provider.GetRequiredService<IPackageManifestReader>(),
+                RuntimeInformation.OSArchitecture switch
+                {
+                    Architecture.X64 => PackageArchitecture.X64,
+                    Architecture.X86 => PackageArchitecture.X86,
+                    Architecture.Arm64 => PackageArchitecture.Arm64,
+                    _ => throw new PlatformNotSupportedException("Unsupported operating system architecture.")
+                }));
             registrations.AddSingleton<ILibrarySnapshotService, FileSystemLibrarySnapshotService>();
             registrations.AddSingleton<ILocalLog>(_ => new JsonLocalLog(applicationDirectory,
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
