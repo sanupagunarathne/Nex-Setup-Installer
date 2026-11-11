@@ -1,3 +1,5 @@
+> Historical Phase 4 record. Presets and history are now implemented: [Phase 5](PHASE-5.md).
+
 # Phase 4 — installation engine (0.4.0)
 
 ## Start a software queue

@@ -1,4 +1,8 @@
 using System.Windows;
+using NexInstaller.Core.Presets;
+using NexInstaller.Core.History;
+using NexInstaller.Infrastructure.Presets;
+using NexInstaller.Infrastructure.History;
 using NexInstaller.Core.Installation;
 using NexInstaller.Infrastructure.Installation;
 using NexInstaller.Core.Importing;
@@ -33,6 +37,9 @@ public partial class App : Application
             registrations.AddSingleton(configuration);
             registrations.AddSingleton(configuration.Paths);
             registrations.AddSingleton<NavigationState>();
+            registrations.AddSingleton<IPresetService, JsonPresetService>();
+            registrations.AddSingleton<IHistoryService>(_ => new JsonHistoryService(applicationDirectory, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
+            registrations.AddSingleton<IPresetsHistoryDialogs, PresetsHistoryDialogs>();
             registrations.AddSingleton(new VerifiedProfiles(System.IO.Path.Combine(applicationDirectory, "installation-profiles.json")));
             registrations.AddSingleton<IInstallationEnvironment, WindowsInstallationEnvironment>();
             registrations.AddSingleton<IInstallationPreflight, InstallationPreflight>();

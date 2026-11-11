@@ -35,8 +35,8 @@ public sealed class ShellViewModelTests
         await shell.RefreshAsync();
         Assert.Equal("0", shell.AvailablePackageCount);
         Assert.Equal("7", shell.FontCount);
-        Assert.Equal("2", shell.PresetCount);
-        Assert.Equal("1", shell.SessionCount);
+        Assert.Equal("—", shell.PresetCount);
+        Assert.Equal("—", shell.SessionCount);
         Assert.False(shell.IsBusy);
         Assert.Contains("read successfully", shell.LibraryStatus);
     }

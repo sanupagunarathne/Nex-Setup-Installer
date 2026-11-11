@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using NexInstaller.Core.Importing;
+using NexInstaller.Core.Presets;
 using NexInstaller.Core.Installation;
 namespace NexInstaller.App.ViewModels;
 
@@ -26,6 +27,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
         ClearCommand = new(() => { if (!IsBusy) { Items.Clear(); Raise(nameof(Count)); } });
         StopCommand = new(() => { cancellation?.Cancel(); Status = "Stop requested. Waiting for any active installer to finish; it will not be killed."; });
     }
+    public Func<Task>? AfterRunAsync { get; set; }
     public ObservableCollection<InstallationQueueItem> Items { get; } = [];
     public ObservableCollection<InstallationResult> Results { get; } = [];
     public int Count => Items.Count;
@@ -54,6 +56,13 @@ public sealed class InstallationQueueViewModel : ObservableObject
         Items.Add(new(request, name, item => { if (!IsBusy) { Items.Remove(item); Raise(nameof(Count)); } }));
         Raise(nameof(Count)); Status = "Queue updated. Start will verify files and ask for technician confirmation.";
     }
+    public void LoadPreset(ResolvedPreset preset)
+    {
+        if (IsBusy) throw new InvalidOperationException("The queue is active.");
+        if (!preset.CanStart || preset.Items.Count != preset.Preset.Items.Length || preset.Items.Select(item => item.Request.Id).Distinct(StringComparer.OrdinalIgnoreCase).Count() != preset.Items.Count)
+            throw new InvalidDataException("Every preset item must resolve unambiguously before replacing the queue.");
+        Items.Clear(); foreach (var item in preset.Items) Add(item.Request, item.Name);
+    }
     public async Task StartAsync()
     {
         if (IsBusy) return;
@@ -74,7 +83,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
         catch (InstallationSessionException ex) { ApplyResults(snapshot, ex.Results); Status = ex.Message; }
         catch (OperationCanceledException) { Status = "Queue cancelled before execution."; }
         catch (Exception ex) { Status = "Queue stopped: " + ex.Message + " Check installation logs before retrying; an item may already have executed."; }
-        finally { cancellation = null; IsBusy = false; }
+        finally { cancellation = null; IsBusy = false; if (AfterRunAsync is not null) await AfterRunAsync(); }
     }
     private void ApplyResults(InstallationQueueItem[] snapshot, IReadOnlyList<InstallationResult> results)
     {

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "00000000000000000000000000000001",
+  "name": "Example setup (documentation only)",
+  "items": [
+    {
+      "kind": "Software",
+      "packageId": "example-editor"
+    }
+  ]
+}

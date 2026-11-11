@@ -33,19 +33,19 @@
     </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
       <StackPanel>
         <TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="PRESET FILES" Style="{StaticResource Eyebrow}" />
+        <TextBlock Text="SAVED PRESETS" Style="{StaticResource Eyebrow}" />
         <TextBlock Text="{Binding Shell.PresetCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="JSON files in presets" Style="{StaticResource Caption}" />
+        <TextBlock Text="Validated saved presets" Style="{StaticResource Caption}" />
       </StackPanel>
     </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
       <StackPanel>
         <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="SESSION REPORTS" Style="{StaticResource Eyebrow}" />
+        <TextBlock Text="RECENT SESSIONS" Style="{StaticResource Eyebrow}" />
         <TextBlock Text="{Binding Shell.SessionCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="JSON files in history" Style="{StaticResource Caption}" />
+        <TextBlock Text="Last 30 days · recorded sessions" Style="{StaticResource Caption}" />
       </StackPanel>
     </Border></WrapPanel>
-  <TextBlock Text="Software count excludes invalid, missing, duplicate-ID, and incompatible packages. Fonts, presets, and sessions show file counts. Hashes are not yet verified." Style="{StaticResource Caption}" Margin="0,0,0,24" />
+  <TextBlock Text="Software count excludes invalid, missing, duplicate-ID, and incompatible packages. Fonts show file counts; presets are validated JSON; sessions cover the last 30 days. Hashes are not yet verified." Style="{StaticResource Caption}" Margin="0,0,0,24" />
   <Grid Margin="0,0,0,24">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
     <Border Style="{StaticResource Card}">
@@ -61,7 +61,10 @@
         <TextBlock Text="Set up your workflow" Style="{StaticResource SectionTitle}" />
         <TextBlock Text="Organize repeat installations with saved presets." Style="{StaticResource SecondaryText}" Margin="0,8,0,18" />
         <Button Content="Open installation presets →" Command="{Binding Shell.OpenPresetsCommand}" HorizontalAlignment="Left" />
-        <TextBlock Text="Preset execution planned for Phase 5" Style="{StaticResource Caption}" Margin="0,12,0,0" />
+        <TextBlock Text="Saved presets are ready to launch" Style="{StaticResource Caption}" Margin="0,12,0,0" />
+        <ComboBox ItemsSource="{Binding Shell.Presets.Presets}" SelectedItem="{Binding Shell.Presets.SelectedPreset}" DisplayMemberPath="Name" Margin="0,12,0,8" AutomationProperties.Name="Quick preset selection"/>
+        <Button Content="Start saved preset" Command="{Binding Shell.Presets.StartCommand}" HorizontalAlignment="Left"/>
+        <TextBlock Text="{Binding Shell.Presets.Status}" Style="{StaticResource Caption}" Margin="0,8,0,0"/>
       </StackPanel>
     </Border>
   </Grid>

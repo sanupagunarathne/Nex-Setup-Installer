@@ -2,18 +2,22 @@
 
 Portable, offline Windows software and font installation workspace.
 
-Phase 4 adds a sequential installation queue for EXE/MSI software and current-user
-Windows fonts. Every item requires fresh hash/path checks and technician
-confirmation. Manual EXEs receive no guessed switches. Unattended software needs
-an explicitly verified, exact-package local profile. Standard UAC and Windows
-security protections remain in place. NEX never requests an automatic restart.
+Phase 5 adds editable JSON installation presets, installation history reconstructed
+from local journal events, and JSON/CSV report export. Presets store package IDs
+and relative font paths/hashes; missing, unavailable or changed references block
+starting a preset. All execution still uses the Phase 4 queue with fresh preflight
+and per-item technician confirmation. No sample packages or installation statistics
+are bundled.
 
-The app can now execute installers **after you start a queue and confirm each
-item**. Imports still only copy files. Tests use fake execution and native APIs;
-Windows runtime and real installer validation remain outstanding.
+The dashboard counts validated saved presets and recorded sessions in the last
+30 days. History distinguishes finished queues from incomplete/inconsistent records;
+finished does not imply every installation succeeded. Exported CSV text is protected
+against spreadsheet formula interpretation. No customer identity fields are added.
 
-See the [Phase 4 installation guide](docs/PHASE-4.md),
-[Phase 3 import guide](docs/PHASE-3.md), and [manifest format](docs/PACKAGE-MANIFESTS.md).
+See the [Phase 5 presets/history guide](docs/PHASE-5.md),
+[Phase 4 installation guide](docs/PHASE-4.md), and [Phase 3 imports](docs/PHASE-3.md).
+Native Windows execution, UAC and visual acceptance testing remain outstanding;
+the Linux validation uses fake installers and Windows cross-compilation.
 
 ## Solution
 
@@ -70,7 +74,9 @@ manifests appear in diagnostics. This does not verify SHA-256 contents or establ
 that an installer is safe or licensed; installation requires a separate queue action and confirmation. Use Package Manager to verify hashes explicitly;
 software availability counts still reflect metadata and file checks, not a cached
 verification result.
-Font, preset, and session tiles still count files, not validated records.
+The font tile counts files; the preset tile counts validated preset JSON; the
+session tile counts recorded sessions in a rolling 30-day window. Warnings identify
+partial inventory/history reads.
 No sample statistics or real installers are shipped.
 
 During `dotnet run`, the default active library is beside the executable under

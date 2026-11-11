@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NEX installation preset v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "name",
+    "items"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "Software",
+              "Font"
+            ]
+          },
+          "packageId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-z0-9][a-z0-9._-]{0,79}$"
+          },
+          "fontRelativePath": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^fonts[/\\\\].+"
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[a-fA-F0-9]{64}$"
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "Software"
+              },
+              "fontRelativePath": {
+                "type": "null"
+              },
+              "sha256": {
+                "type": "null"
+              },
+              "packageId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "packageId"
+            ]
+          },
+          {
+            "properties": {
+              "kind": {
+                "const": "Font"
+              },
+              "packageId": {
+                "type": "null"
+              },
+              "fontRelativePath": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fontRelativePath",
+              "sha256"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "description": "Filename must be id.json. Runtime also rejects unsafe Windows path components, traversal, duplicate derived request IDs, whitespace-only names and controls. Presets do not authorize execution or unattended arguments."
+}
