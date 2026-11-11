@@ -4,7 +4,7 @@
    <TextBlock Text="Recorded installation sessions" Style="{StaticResource SectionTitle}"/>
    <TextBlock Text="Search by session ID, package ID/name, outcome, exit code, or message" Style="{StaticResource Caption}" Margin="0,12,0,6"/>
    <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="History search"/>
-   <WrapPanel Margin="0,12,0,16"><Button Content="Refresh history" Command="{Binding RefreshCommand}" Margin="0,0,12,8"/><Button Content="Export selected as JSON" Command="{Binding ExportJsonCommand}" Margin="0,0,12,8"/><Button Content="Export selected as CSV" Command="{Binding ExportCsvCommand}" Margin="0,0,0,8"/></WrapPanel>
+   <WrapPanel Margin="0,12,0,16"><Button Content="Refresh history" Command="{Binding RefreshCommand}" Margin="0,0,12,8"/><Button Content="Save full report (JSON)" Command="{Binding ExportJsonCommand}" Margin="0,0,12,8"/><Button Content="Save spreadsheet (CSV)" Command="{Binding ExportCsvCommand}" Margin="0,0,0,8"/></WrapPanel>
    <ListBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession}" DisplayMemberPath="Summary" Height="220" AutomationProperties.Name="Installation sessions"/>
    <TextBlock Text="Incomplete sessions can be active or interrupted. Finished means the queue ended; inspect each item's outcome. No customer identity data is needed." Style="{StaticResource Caption}" Margin="0,12,0,0"/>
   </StackPanel></Border>

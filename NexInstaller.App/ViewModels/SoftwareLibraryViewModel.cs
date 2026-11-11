@@ -14,7 +14,7 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
     public string Category => Package.Manifest.Category;
     public string Architecture => Package.Manifest.Architecture.ToString();
     public bool IsAvailable => Package.IsAvailable;
-    public string Availability => IsAvailable ? "Available · hash unverified" : "Unavailable";
+    public string Availability => IsAvailable ? "Ready to select" : "Needs attention · open app details";
     public string Size => $"{Package.SizeBytes / 1024d / 1024d:N2} MiB";
     public bool IsSelected
     {
@@ -39,16 +39,16 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose t
     public RelayCommand AddToQueueCommand => new(() => InstallationQueue?.AddSoftware(SelectedPackages));
     private readonly List<PackageRowViewModel> all = [];
     private string search = "";
-    private string architecture = "All architectures";
-    private CategoryOption category = new("All categories", null);
+    private string architecture = "All computer types";
+    private CategoryOption category = new("All groups", null);
     private PackageRowViewModel? selectedPackage;
     private string issues = "Refresh the library to discover packages.";
     public ObservableCollection<PackageRowViewModel> Packages { get; } = [];
-    public ObservableCollection<CategoryOption> Categories { get; } = [new("All categories", null)];
-    public IReadOnlyList<string> Architectures { get; } = ["All architectures", "Any", "X86", "X64", "Arm64"];
+    public ObservableCollection<CategoryOption> Categories { get; } = [new("All groups", null)];
+    public IReadOnlyList<string> Architectures { get; } = ["All computer types", "Any", "X86", "X64", "Arm64"];
     public string Search { get => search; set { search = value ?? ""; Raise(); Filter(); } }
-    public string SelectedArchitecture { get => architecture; set { architecture = value ?? "All architectures"; Raise(); Filter(); } }
-    public CategoryOption SelectedCategory { get => category; set { category = value ?? new CategoryOption("All categories", null); Raise(); Filter(); } }
+    public string SelectedArchitecture { get => architecture; set { architecture = value ?? "All computer types"; Raise(); Filter(); } }
+    public CategoryOption SelectedCategory { get => category; set { category = value ?? new CategoryOption("All groups", null); Raise(); Filter(); } }
     public PackageRowViewModel? SelectedPackage { get => selectedPackage; set { selectedPackage = value; Raise(); Raise(nameof(Details)); } }
     public string Details => SelectedPackage?.Details ?? "Select a row to inspect its metadata and availability.";
     public string Issues { get => issues; private set { issues = value; Raise(); } }
@@ -71,7 +71,7 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose t
         }
         var previousCategory = SelectedCategory.Value;
         Categories.Clear();
-        Categories.Add(new("All categories", null));
+        Categories.Add(new("All groups", null));
         foreach (var name in catalog.Categories) Categories.Add(new(name, name));
         category = Categories.FirstOrDefault(option => string.Equals(option.Value, previousCategory, StringComparison.OrdinalIgnoreCase)) ?? Categories[0];
         Raise(nameof(SelectedCategory));
@@ -86,7 +86,7 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose t
         var query = Search.Trim();
         var visible = all.Where(row =>
             (SelectedCategory.Value is null || string.Equals(row.Category, SelectedCategory.Value, StringComparison.OrdinalIgnoreCase)) &&
-            (SelectedArchitecture == "All architectures" || row.Architecture == SelectedArchitecture) &&
+            (SelectedArchitecture == "All computer types" || row.Architecture == SelectedArchitecture) &&
             (query.Length == 0 || $"{row.Name} {row.Version} {row.Package.Manifest.Id} {row.Package.Manifest.Description}".Contains(query, StringComparison.OrdinalIgnoreCase))).ToArray();
         Packages.Clear();
         foreach (var row in visible) Packages.Add(row);

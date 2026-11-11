@@ -36,7 +36,7 @@ public abstract class ImportWorkspace(string title, string subtitle) : PageViewM
     protected static T Require<T>(T? service) where T : class => service ?? throw new InvalidOperationException("Import services are unavailable.");
 }
 
-public sealed class PackageManagerViewModel : ImportWorkspace
+public sealed partial class PackageManagerViewModel : ImportWorkspace
 {
     private readonly ShellViewModel shell;
     private readonly IPackageImportService? importer;
@@ -46,6 +46,7 @@ public sealed class PackageManagerViewModel : ImportWorkspace
         : base("Add files", "Save setup files to your offline library.")
     {
         this.shell = shell; this.importer = importer; this.categories = categories; this.dialogs = dialogs;
+        RebuildGroups([]);
         ImportCommand = new(ImportAsync, ex => Status = ex.Message);
         VerifyCommand = new(VerifyAsync, ex => Status = ex.Message);
         AddCategoryCommand = new(() => ChangeCategory("add"), ex => Status = ex.Message);
@@ -56,18 +57,25 @@ public sealed class PackageManagerViewModel : ImportWorkspace
         BrowseEntryCommand = new(() => { if (!Directory.Exists(SourcePath)) { Status = "Select a source folder first."; return; } var path = Require(dialogs).EntryPoint(SourcePath); if (path is not null) { EntryPoint = Path.GetRelativePath(SourcePath, path); Raise(nameof(EntryPoint)); } });
     }
     private string sourcePath = "";
-    public string SourcePath { get => sourcePath; set { sourcePath = value; Raise(); } }
-    public string EntryPoint { get; set; } = "";
-    public string PackageName { get; set; } = "";
-    public string Version { get; set; } = "";
-    private string category = "Utilities";
-    public string Category { get => category; set { if (value is null) return; category = value; Raise(); } }
-    public string Description { get; set; } = "";
-    public bool RequiresAdministrator { get; set; }
-    public PackageArchitecture Architecture { get; set; } = PackageArchitecture.X64;
+    public string SourcePath { get => sourcePath; set { sourcePath = value; Step = 0; Raise(); Raise(nameof(IsFolderSource)); Raise(nameof(FileDisplayName)); Raise(nameof(ReviewText)); } }
+    private string entryPoint = "";
+    public string EntryPoint { get => entryPoint; set { entryPoint = value; Raise(); Raise(nameof(ReviewText)); } }
+    private string packageName = "";
+    public string PackageName { get => packageName; set { packageName = value; Raise(); Raise(nameof(ReviewText)); } }
+    private string version = "";
+    public string Version { get => version; set { version = value; Raise(); Raise(nameof(ReviewText)); } }
+    private string category = "Tools";
+    public string Category { get => category; set { if (value is null) return; category = value; Raise(); Raise(nameof(ReviewText)); SelectCurrentGroup(); } }
+    private string description = "";
+    public string Description { get => description; set { description = value; Raise(); Raise(nameof(ReviewText)); } }
+    private bool requiresAdministrator = false;
+    public bool RequiresAdministrator { get => requiresAdministrator; set { requiresAdministrator = value; Raise(); Raise(nameof(ReviewText)); } }
+    private PackageArchitecture architecture = PackageArchitecture.X64;
+    public PackageArchitecture Architecture { get => architecture; set { architecture = value; Raise(); Raise(nameof(ReviewText)); } }
     public IReadOnlyList<PackageArchitecture> Architectures { get; } = Enum.GetValues<PackageArchitecture>();
     public IReadOnlyList<string> Modes { get; } = ["Manual"];
-    public string NewCategory { get; set; } = "";
+    private string newCategory = "";
+    public string NewCategory { get => newCategory; set { newCategory = value; Raise(); Raise(nameof(ReviewText)); } }
     public string? SelectedCategory { get; set; }
     public ObservableCollection<string> Categories { get; } = [];
     public AsyncCommand ImportCommand { get; }
@@ -101,6 +109,7 @@ public sealed class PackageManagerViewModel : ImportWorkspace
         {
             var names = await Task.Run(categories.List);
             Categories.Clear(); foreach (var name in names) Categories.Add(name);
+            RebuildGroups(names);
         }
         catch (Exception ex) { Status = "Category list unavailable: " + ex.Message; }
     }
@@ -115,10 +124,11 @@ public sealed class PackageManagerViewModel : ImportWorkspace
             token.ThrowIfCancellationRequested();
             if (action == "add") service.Add(name);
             else if (action == "remove") service.Remove(name);
-            else service.Assign(id ?? throw new InvalidOperationException("Choose a package row in Software Library first."), name);
+            else service.Assign(id ?? throw new InvalidOperationException("Choose an app row in Apps first."), name);
         }, token);
+        if (action == "remove" && string.Equals(Category, name, StringComparison.OrdinalIgnoreCase)) Category = "Tools";
         await shell.RefreshAsync();
-        Status = "Category updated.";
+        Status = "Group updated.";
         shell.RecordOperation("category.update", "Local category metadata updated.");
     });
 }

@@ -1,3 +1,5 @@
+> Page labels/layout were subsequently simplified: [approved blue workspace](BLUE-WORKSPACE.md). Existing functionality is retained.
+
 # Phase 5 — presets, history and reports (0.5.0)
 
 ## Create and edit presets

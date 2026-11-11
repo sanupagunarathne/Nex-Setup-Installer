@@ -24,7 +24,8 @@
   <Border Style="{StaticResource Card}">
     <StackPanel>
       <TextBlock Text="NEX Installer" Style="{StaticResource SectionTitle}" />
-      <TextBlock Text="Version 0.5.0 · Phase 5 presets and history · Windows 10/11 x64" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+      <TextBlock Text="Brand icons: Font Awesome Free, CC BY 4.0. See THIRD_PARTY_NOTICES.md beside the app." Style="{StaticResource Caption}" Margin="0,12,0,0"/>
+      <TextBlock Text="Version 0.5.1 · Blue workspace · Windows 10/11 x64" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
       <TextBlock Text="The application runs with the current user's permissions. Software execution uses standard Windows UAC where required. Font installation applies to the current user. Windows will never be restarted automatically." Style="{StaticResource Caption}" Margin="0,12,0,0" />
     </StackPanel>
   </Border>

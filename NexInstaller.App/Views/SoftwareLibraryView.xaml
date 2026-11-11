@@ -22,7 +22,7 @@
       <Button Content="Select available" Command="{Binding SelectVisibleCommand}" Margin="0,0,8,8" />
       <Button Content="Clear selection" Command="{Binding ClearSelectionCommand}" Margin="0,0,0,8" />
      </WrapPanel>
-     <TextBlock Text="No packages match. Add manifests and installer files to the configured library, then refresh." Style="{StaticResource SecondaryText}" Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,16" />
+     <TextBlock Text="No apps match. Add setup files in Add files, then refresh your library." Style="{StaticResource SecondaryText}" Visibility="{Binding IsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,16" />
      <ListBox ItemsSource="{Binding Packages}" SelectedItem="{Binding SelectedPackage}" Height="350" ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Discovered software">
       <ListBox.ItemTemplate>
        <DataTemplate>
@@ -32,7 +32,7 @@
          <StackPanel Grid.Column="1">
           <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
           <TextBlock Style="{StaticResource Caption}"><Run Text="{Binding Version}"/><Run Text=" · "/><Run Text="{Binding Architecture}"/><Run Text=" · "/><Run Text="{Binding Category}"/></TextBlock>
-          <TextBlock Text="{Binding Availability}" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="0,6,0,0" />
+          <TextBlock Text="{Binding Availability}" Foreground="{StaticResource SecondaryBrush}" FontSize="11" Margin="0,6,0,0" />
          </StackPanel>
         </Grid>
        </DataTemplate>
@@ -42,26 +42,28 @@
    </Border>
    <Border Grid.Column="2" Style="{StaticResource Card}" Padding="18">
     <StackPanel>
-     <TextBlock Text="Selected software" Style="{StaticResource SectionTitle}" />
-     <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" Foreground="{StaticResource AccentBrush}" Margin="0,12,0,12" />
+     <TextBlock Text="Your choices" Style="{StaticResource SectionTitle}" />
+     <TextBlock Text="{Binding SelectedCount, StringFormat='{}{0} selected'}" Foreground="{StaticResource SecondaryBrush}" Margin="0,12,0,12" />
      <ItemsControl ItemsSource="{Binding SelectedPackages}">
       <ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" Style="{StaticResource Caption}" Margin="0,0,0,8"/></DataTemplate></ItemsControl.ItemTemplate>
      </ItemsControl>
-     <TextBlock Text="Selections stay selected while filtering. Add them to the queue, then start it below for preflight and confirmation." Style="{StaticResource SecondaryText}" Margin="0,12,0,20" />
-     <Button Content="Add selected to queue" Command="{Binding AddToQueueCommand}" />
+     <TextBlock Text="Your choices stay selected while you filter. Add them to the install list below; you will confirm before anything starts." Style="{StaticResource SecondaryText}" Margin="0,12,0,20" />
+     <Button Content="Add to install list" Command="{Binding AddToQueueCommand}" />
      <TextBlock Text="Every item requires technician confirmation" Style="{StaticResource Caption}" Margin="0,12,0,0" />
     </StackPanel>
    </Border>
   </Grid>
+  <Expander Header="App details and file checks" Foreground="{StaticResource TextBrush}" Margin="0,8,0,0"><StackPanel>
   <Border Style="{StaticResource Card}" Margin="0,0,0,16">
    <StackPanel>
-    <TextBlock Text="Package details" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
-    <TextBox Text="{Binding Details, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="300" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Package details" />
+    <TextBlock Text="App details" Style="{StaticResource SectionTitle}" Margin="0,0,0,12" />
+    <TextBox Text="{Binding Details, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="300" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="App details" />
    </StackPanel>
   </Border>
   <Border Style="{StaticResource Card}">
-   <StackPanel><TextBlock Text="Discovery diagnostics" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/><TextBlock Text="{Binding Issues}" Style="{StaticResource SecondaryText}" /></StackPanel>
+   <StackPanel><TextBlock Text="File checks and details" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/><TextBlock Text="{Binding Issues}" Style="{StaticResource SecondaryText}" /></StackPanel>
   </Border>
+  </StackPanel></Expander>
  <views:InstallationQueueView DataContext="{Binding InstallationQueue}"/>
  </StackPanel>
 </UserControl>
