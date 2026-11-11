@@ -6,7 +6,7 @@
   <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
    <DockPanel Margin="16,28,16,16">
     <StackPanel DockPanel.Dock="Top" Margin="14,0,0,34"><TextBlock Text="NEX" FontSize="32" FontWeight="Bold"/><TextBlock Text="INSTALLER" Style="{StaticResource Eyebrow}" Margin="2,4,0,0"/></StackPanel>
-    <TextBlock DockPanel.Dock="Bottom" Text="Portable · v0.5.1" Style="{StaticResource Caption}" Margin="14,16,0,0"/>
+    <TextBlock DockPanel.Dock="Bottom" Text="Portable · v0.5.2" Style="{StaticResource Caption}" Margin="14,16,0,0"/>
     <ItemsControl ItemsSource="{Binding NavigationItems}"><ItemsControl.ItemTemplate><DataTemplate>
      <Button Command="{Binding SelectCommand}" Style="{StaticResource NavigationButton}" AutomationProperties.Name="{Binding Title}">
       <StackPanel Orientation="Horizontal"><TextBlock Text="{Binding Glyph}" FontFamily="Segoe MDL2 Assets" Width="30" VerticalAlignment="Center"/><TextBlock Text="{Binding Title}"/></StackPanel>
@@ -23,7 +23,7 @@
     <Button Grid.Column="1" Content="Refresh files" Command="{Binding RefreshCommand}" VerticalAlignment="Top" ToolTip="Read your saved files and installation records again."/>
    </Grid>
    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0,0,6,0">
-    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Setter Property="VerticalScrollBarVisibility" Value="Auto"/><Style.Triggers><DataTrigger Binding="{Binding IsHome}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
+    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Setter Property="VerticalScrollBarVisibility" Value="Auto"/><Style.Triggers><DataTrigger Binding="{Binding IsHome}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger><DataTrigger Binding="{Binding IsAppsWorkbench}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
     <ContentControl Content="{Binding CurrentPage}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
    </ScrollViewer>
   </Grid>

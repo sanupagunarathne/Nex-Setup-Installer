@@ -32,6 +32,14 @@ public sealed class InstallationQueueTests
         Assert.Contains("Restart required", vm.Status); Assert.False(vm.IsBusy);
     }
     [Fact]
+    public async Task CompactListKeepsResultsVisibleAfterClearingPendingItems()
+    {
+        var vm = new InstallationQueueViewModel(new FakeEngine()); vm.AddSoftware([Row()]); await vm.StartAsync();
+        vm.ClearCommand.Execute(null);
+        Assert.False(vm.HasItems); Assert.True(vm.HasContent); Assert.False(vm.IsEmpty); Assert.True(vm.HasStarted);
+        Assert.Equal(3010, Assert.Single(vm.Results).ExitCode);
+    }
+    [Fact]
     public void FontQueueRequiresLicenseAcknowledgement()
     {
         var vm = new InstallationQueueViewModel(new FakeEngine());

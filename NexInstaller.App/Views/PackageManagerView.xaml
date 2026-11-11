@@ -1,59 +1,231 @@
-<UserControl x:Class="NexInstaller.App.Views.PackageManagerView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
- <StackPanel>
-  <UniformGrid Columns="3" Margin="0,0,0,20">
-<Border Padding="12" CornerRadius="8" Margin="0,0,8,0"><Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Step}" Value="0"><Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="1  Choose file" FontWeight="SemiBold"/></Border><Border Padding="12" CornerRadius="8" Margin="0,0,8,0"><Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Step}" Value="1"><Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="2  App details" FontWeight="SemiBold"/></Border><Border Padding="12" CornerRadius="8" Margin="0,0,8,0"><Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Step}" Value="2"><Setter Property="Background" Value="{StaticResource AccentSurfaceBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="3  Review &amp; save" FontWeight="SemiBold"/></Border></UniformGrid>
- <Grid>
-  <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="220"/></Grid.ColumnDefinitions>
-  <StackPanel Grid.Column="0" IsEnabled="{Binding IsIdle}">
-   <Border Style="{StaticResource Card}" Visibility="{Binding IsChooseStep, Converter={StaticResource BooleanToVisibilityConverter}}"><StackPanel>
-    <TextBlock Text="Choose the app setup file" Style="{StaticResource SectionTitle}"/>
-    <TextBlock Text="Pick the file you would normally double-click to start setup. Files ending in .exe or .msi are supported." Style="{StaticResource SecondaryText}" Margin="0,10,0,16"/>
-    <WrapPanel><Button Content="Choose setup file" Command="{Binding BrowseFileCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8"/><Button Content="Choose complete folder" Command="{Binding BrowseFolderCommand}" Margin="0,0,0,8"/></WrapPanel>
-    <TextBlock Text="File or folder location" Style="{StaticResource Caption}" Margin="0,12,0,6"/>
-    <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Setup source location"/>
-    <TextBlock Text="Choose from your computer or USB. A complete folder keeps supporting files together." Style="{StaticResource Caption}" Margin="0,6,0,12"/>
-    <StackPanel Visibility="{Binding IsFolderSource, Converter={StaticResource BooleanToVisibilityConverter}}">
-     <TextBlock Text="Setup file inside the folder" Style="{StaticResource Caption}" Margin="0,8,0,6"/><TextBox Text="{Binding EntryPoint, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Setup file within folder"/>
-     <TextBlock Text="Select the .exe or .msi that starts this setup. Keep it inside the chosen folder." Style="{StaticResource Caption}" Margin="0,6,0,8"/><Button Content="Choose this setup file" Command="{Binding BrowseEntryCommand}" HorizontalAlignment="Left"/>
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="NexInstaller.App.Views.PackageManagerView">
+  <StackPanel>
+    <Grid Margin="0,0,0,20">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+        <Border Width="30" Height="30" CornerRadius="15" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+          <Border.Style>
+            <Style TargetType="Border">
+              <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Step}" Value="0">
+                  <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <TextBlock Text="1" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" />
+        </Border>
+        <TextBlock Text="Choose file" Margin="10,0,0,0" VerticalAlignment="Center" />
+      </StackPanel>
+      <Border Grid.Column="1" Height="1" Background="{StaticResource BorderBrush}" Margin="14,0" VerticalAlignment="Center" />
+      <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+        <Border Width="30" Height="30" CornerRadius="15" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+          <Border.Style>
+            <Style TargetType="Border">
+              <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Step}" Value="1">
+                  <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <TextBlock Text="2" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" />
+        </Border>
+        <TextBlock Text="App details" Margin="10,0,0,0" VerticalAlignment="Center" />
+      </StackPanel>
+      <Border Grid.Column="3" Height="1" Background="{StaticResource BorderBrush}" Margin="14,0" VerticalAlignment="Center" />
+      <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+        <Border Width="30" Height="30" CornerRadius="15" BorderThickness="1" BorderBrush="{StaticResource BorderBrush}">
+          <Border.Style>
+            <Style TargetType="Border">
+              <Setter Property="Background" Value="{StaticResource SurfaceBrush}" />
+              <Style.Triggers>
+                <DataTrigger Binding="{Binding Step}" Value="2">
+                  <Setter Property="Background" Value="{StaticResource AccentBrush}" />
+                </DataTrigger>
+              </Style.Triggers>
+            </Style>
+          </Border.Style>
+          <TextBlock Text="3" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold" />
+        </Border>
+        <TextBlock Text="Review &amp; save" Margin="10,0,0,0" VerticalAlignment="Center" />
+      </StackPanel>
+    </Grid>
+    <Grid>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2.2*" />
+        <ColumnDefinition Width="20" />
+        <ColumnDefinition Width="1*" MinWidth="220" />
+      </Grid.ColumnDefinitions>
+      <StackPanel Grid.Column="0" IsEnabled="{Binding IsIdle}">
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsChooseStep, Converter={StaticResource BooleanToVisibilityConverter}}" MinHeight="430">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,20">
+              <TextBlock Text="Choose the app setup file" Style="{StaticResource SectionTitle}" />
+              <TextBlock Text="Pick the file you would normally double-click to start setup. Files ending in .exe or .msi are supported." Style="{StaticResource SecondaryText}" Margin="0,10,0,16" />
+              <WrapPanel>
+                <Button Content="Choose setup file" Command="{Binding BrowseFileCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" />
+                <Button Content="Choose complete folder" Command="{Binding BrowseFolderCommand}" Margin="0,0,0,8" />
+              </WrapPanel>
+              <TextBlock Text="File or folder location" Style="{StaticResource Caption}" Margin="0,12,0,6" />
+              <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Setup source location" Tag="Choose a file or folder" />
+              <TextBlock Text="Choose from your computer or USB. A complete folder keeps supporting files together." Style="{StaticResource Caption}" Margin="0,6,0,12" />
+              <StackPanel Visibility="{Binding IsFolderSource, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="Setup file inside the folder" Style="{StaticResource Caption}" Margin="0,8,0,6" />
+                <TextBox Text="{Binding EntryPoint, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Setup file within folder" />
+                <TextBlock Text="Select the .exe or .msi that starts this setup. Keep it inside the chosen folder." Style="{StaticResource Caption}" Margin="0,6,0,8" />
+                <Button Content="Choose this setup file" Command="{Binding BrowseEntryCommand}" HorizontalAlignment="Left" />
+              </StackPanel>
+            </StackPanel>
+            <Button Content="Next: app details" Command="{Binding NextCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Margin="0" Grid.Row="1" />
+          </Grid>
+        </Border>
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsDetailsStep, Converter={StaticResource BooleanToVisibilityConverter}}" MinHeight="430">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,20">
+              <TextBlock Text="App name" FontWeight="SemiBold" />
+              <TextBox Text="{Binding PackageName, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="App name" Tag="Name shown to staff" />
+              <TextBlock Text="Use a name everyone at the shop will recognise." Style="{StaticResource Caption}" Margin="0,6,0,16" />
+              <TextBlock Text="Version" FontWeight="SemiBold" />
+              <TextBox Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="App version" Tag="Version on the installer" />
+              <TextBlock Text="Find this on the installer or app details. Ask a senior staff member if unsure." Style="{StaticResource Caption}" Margin="0,6,0,16" />
+              <TextBlock Text="Group" FontWeight="SemiBold" />
+              <ComboBox ItemsSource="{Binding ImportGroups}" SelectedItem="{Binding SelectedImportGroup}" Margin="0,6,0,0" AutomationProperties.Name="App group">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border>
+                      <Border.Style>
+                        <Style TargetType="Border">
+                          <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCreate}" Value="True">
+                              <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                              <Setter Property="BorderThickness" Value="0,1,0,0" />
+                              <Setter Property="Padding" Value="0,8,0,0" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </Border.Style>
+                      <TextBlock Text="{Binding Label}" />
+                    </Border>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Text="Choose a matching group, or create one at the end of the list." Style="{StaticResource Caption}" Margin="0,6,0,12" />
+              <Border Style="{StaticResource InsetCard}" Padding="12" Visibility="{Binding IsCreatingGroup, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,12">
+                <StackPanel>
+                  <TextBlock Text="New group name" />
+                  <TextBox Text="{Binding NewCategory, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="New import group" />
+                  <TextBlock Text="Use a short name such as Office tools. Your existing groups are kept." Style="{StaticResource Caption}" Margin="0,6,0,8" />
+                  <WrapPanel>
+                    <Button Content="Create &amp; select" Command="{Binding CreateImportGroupCommand}" Margin="0,0,8,0" />
+                    <Button Content="Cancel" Command="{Binding CancelCreateGroupCommand}" />
+                  </WrapPanel>
+                </StackPanel>
+              </Border>
+              <Expander Header="More options" Foreground="{StaticResource TextBrush}" Margin="0,8,0,12">
+                <StackPanel Margin="0,12,0,0">
+                  <TextBlock Text="Computer type supported by this installer" />
+                  <ComboBox ItemsSource="{Binding Architectures}" SelectedItem="{Binding Architecture}" Margin="0,6,0,0" AutomationProperties.Name="Installer architecture" />
+                  <TextBlock Text="X64 means 64-bit Windows; X86 means 32-bit. Use the type listed by the supplier, or ask a senior staff member." Style="{StaticResource Caption}" Margin="0,6,0,16" />
+                  <TextBlock Text="How this app installs" />
+                  <ComboBox ItemsSource="{Binding Modes}" SelectedIndex="0" Margin="0,6,0,0" />
+                  <TextBlock Text="Manual keeps the normal setup screens. Reviewed unattended profiles remain available through advanced configuration." Style="{StaticResource Caption}" Margin="0,6,0,16" />
+                  <StackPanel Orientation="Horizontal">
+                    <CheckBox IsChecked="{Binding RequiresAdministrator}" AutomationProperties.Name="Administrator permission required" />
+                    <TextBlock Text="Needs Windows administrator permission" Margin="10,0,0,0" />
+                  </StackPanel>
+                  <TextBlock Text="Tick only when the supplier says administrator access is needed. Windows keeps its normal permission prompts." Style="{StaticResource Caption}" Margin="0,6,0,16" />
+                  <TextBlock Text="Note (optional)" />
+                  <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="Optional app description" />
+                  <TextBlock Text="Add a useful note for other staff. This does not change the setup file." Style="{StaticResource Caption}" Margin="0,6,0,0" />
+                </StackPanel>
+              </Expander>
+            </StackPanel>
+            <WrapPanel HorizontalAlignment="Right" Grid.Row="1" Margin="0">
+              <Button Content="Back" Command="{Binding BackCommand}" Margin="0,0,12,0" />
+              <Button Content="Review &amp; save" Command="{Binding NextCommand}" Style="{StaticResource PrimaryButton}" />
+            </WrapPanel>
+          </Grid>
+        </Border>
+        <Border Style="{StaticResource Card}" Visibility="{Binding IsReviewStep, Converter={StaticResource BooleanToVisibilityConverter}}" MinHeight="430">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="0,0,0,20">
+              <TextBlock Text="Check before saving" Style="{StaticResource SectionTitle}" />
+              <TextBlock Text="{Binding ReviewText}" Margin="0,16,0,20" />
+            </StackPanel>
+            <WrapPanel Grid.Row="1" Margin="0">
+              <Button Content="Back" Command="{Binding BackCommand}" Margin="0,0,12,0" />
+              <Button Content="Save to library" Command="{Binding ImportCommand}" Style="{StaticResource PrimaryButton}" />
+            </WrapPanel>
+          </Grid>
+        </Border>
+      </StackPanel>
+      <StackPanel Grid.Column="2">
+        <Border Style="{StaticResource Card}" Padding="18">
+          <StackPanel>
+            <TextBlock Text="Your file" Style="{StaticResource SectionTitle}" />
+            <TextBlock Text="{Binding FileDisplayName}" Margin="0,16,0,12" FontWeight="SemiBold" />
+            <Button Content="Change file" Command="{Binding BrowseFileCommand}" IsEnabled="{Binding IsIdle}" />
+            <TextBlock Text="Saving this file does not install the app." Style="{StaticResource SecondaryText}" Margin="0,16,0,0" />
+          </StackPanel>
+        </Border>
+        <Border Style="{StaticResource Card}" Padding="18" Margin="0,16,0,0">
+          <StackPanel>
+            <TextBlock Text="Need help?" Style="{StaticResource SectionTitle}" />
+            <TextBlock Text="Follow the steps. You can go back at any time. Technical settings are kept in More options." Style="{StaticResource Caption}" Margin="0,12,0,0" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Grid>
+    <StackPanel Margin="0,12,0,0">
+      <ProgressBar IsIndeterminate="True" Height="3" Foreground="{StaticResource AccentBrush}" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
+      <TextBlock Text="{Binding Status}" Style="{StaticResource Caption}" MaxHeight="44" TextTrimming="CharacterEllipsis" ToolTip="{Binding Status}" Margin="0,8,0,0" />
+      <Button Content="Cancel operation" Command="{Binding CancelCommand}" HorizontalAlignment="Left" Margin="0,8,0,0" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" />
     </StackPanel>
-    <Button Content="Next: app details" Command="{Binding NextCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Margin="0,20,0,0"/>
-   </StackPanel></Border>
-   <Border Style="{StaticResource Card}" Visibility="{Binding IsDetailsStep, Converter={StaticResource BooleanToVisibilityConverter}}"><StackPanel>
-    <TextBlock Text="App name" FontWeight="SemiBold"/><TextBox Text="{Binding PackageName, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="App name"/><TextBlock Text="Use a name everyone at the shop will recognise." Style="{StaticResource Caption}" Margin="0,6,0,16"/>
-    <TextBlock Text="Version" FontWeight="SemiBold"/><TextBox Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="App version"/><TextBlock Text="Find this on the installer or supplier's app details. Ask a senior staff member if you are unsure." Style="{StaticResource Caption}" Margin="0,6,0,16"/>
-    <TextBlock Text="Group" FontWeight="SemiBold"/>
-    <ComboBox ItemsSource="{Binding ImportGroups}" SelectedItem="{Binding SelectedImportGroup}" Margin="0,6,0,0" AutomationProperties.Name="App group">
-     <ComboBox.ItemTemplate><DataTemplate><Border><Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding IsCreate}" Value="True"><Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/><Setter Property="BorderThickness" Value="0,1,0,0"/><Setter Property="Padding" Value="0,8,0,0"/></DataTrigger></Style.Triggers></Style></Border.Style><TextBlock Text="{Binding Label}"/></Border></DataTemplate></ComboBox.ItemTemplate>
-    </ComboBox>
-    <TextBlock Text="Choose the group that fits this app. Create a new one using the last option in the list." Style="{StaticResource Caption}" Margin="0,6,0,12"/>
-    <Border Style="{StaticResource InsetCard}" Padding="12" Visibility="{Binding IsCreatingGroup, Converter={StaticResource BooleanToVisibilityConverter}}" Margin="0,0,0,12"><StackPanel>
-     <TextBlock Text="New group name"/><TextBox Text="{Binding NewCategory, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="New import group"/><TextBlock Text="Use a short name such as Office tools. Your existing groups are kept." Style="{StaticResource Caption}" Margin="0,6,0,8"/>
-     <WrapPanel><Button Content="Create &amp; select" Command="{Binding CreateImportGroupCommand}" Margin="0,0,8,0"/><Button Content="Cancel" Command="{Binding CancelCreateGroupCommand}"/></WrapPanel>
-    </StackPanel></Border>
-    <Expander Header="More options" Foreground="{StaticResource TextBrush}" Margin="0,8,0,12"><StackPanel Margin="0,12,0,0">
-     <TextBlock Text="Computer type supported by this installer"/><ComboBox ItemsSource="{Binding Architectures}" SelectedItem="{Binding Architecture}" Margin="0,6,0,0" AutomationProperties.Name="Installer architecture"/><TextBlock Text="X64 means 64-bit Windows; X86 means 32-bit. Use the type listed by the supplier, or ask a senior staff member." Style="{StaticResource Caption}" Margin="0,6,0,16"/>
-     <TextBlock Text="How this app installs"/><ComboBox ItemsSource="{Binding Modes}" SelectedIndex="0" Margin="0,6,0,0"/><TextBlock Text="Manual keeps the normal setup screens. Reviewed unattended profiles remain available through advanced configuration." Style="{StaticResource Caption}" Margin="0,6,0,16"/>
-     <StackPanel Orientation="Horizontal"><CheckBox IsChecked="{Binding RequiresAdministrator}" AutomationProperties.Name="Administrator permission required"/><TextBlock Text="Needs Windows administrator permission" Margin="10,0,0,0"/></StackPanel><TextBlock Text="Tick only when the supplier says administrator access is needed. Windows keeps its normal permission prompts." Style="{StaticResource Caption}" Margin="0,6,0,16"/>
-     <TextBlock Text="Note (optional)"/><TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" AutomationProperties.Name="Optional app description"/><TextBlock Text="Add a useful note for other staff. This does not change the setup file." Style="{StaticResource Caption}" Margin="0,6,0,0"/>
-    </StackPanel></Expander>
-    <WrapPanel HorizontalAlignment="Right"><Button Content="Back" Command="{Binding BackCommand}" Margin="0,0,12,0"/><Button Content="Review &amp; save" Command="{Binding NextCommand}" Style="{StaticResource PrimaryButton}"/></WrapPanel>
-   </StackPanel></Border>
-   <Border Style="{StaticResource Card}" Visibility="{Binding IsReviewStep, Converter={StaticResource BooleanToVisibilityConverter}}"><StackPanel>
-    <TextBlock Text="Check before saving" Style="{StaticResource SectionTitle}"/><TextBlock Text="{Binding ReviewText}" Margin="0,16,0,20"/>
-    <WrapPanel><Button Content="Back" Command="{Binding BackCommand}" Margin="0,0,12,0"/><Button Content="Save to library" Command="{Binding ImportCommand}" Style="{StaticResource PrimaryButton}"/></WrapPanel>
-   </StackPanel></Border>
+    <Expander Header="Saved files, groups and operation details" Margin="0,12,0,0">
+      <StackPanel>
+        <TextBox Text="{Binding Status, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="180" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Detailed file operation report" />
+        <Expander Header="Manage saved files and groups" Foreground="{StaticResource TextBrush}" Margin="0,20,0,0">
+          <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+            <StackPanel IsEnabled="{Binding IsIdle}">
+              <Button Content="Check saved files" Command="{Binding VerifyCommand}" HorizontalAlignment="Left" />
+              <TextBlock Text="Recheck SHA-256 file fingerprints and report missing or changed installers. Nothing is installed." Style="{StaticResource Caption}" Margin="0,8,0,20" />
+              <TextBlock Text="New group name" />
+              <TextBox Text="{Binding NewCategory, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0" />
+              <TextBlock Text="Create a group before assigning it to an existing app." Style="{StaticResource Caption}" Margin="0,6,0,8" />
+              <Button Content="Create group" Command="{Binding AddCategoryCommand}" HorizontalAlignment="Left" />
+              <TextBlock Text="Existing group" Margin="0,16,0,6" />
+              <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" />
+              <TextBlock Text="Built-in choices stay available for new imports. Only unused saved groups can be removed." Style="{StaticResource Caption}" Margin="0,6,0,12" />
+              <WrapPanel>
+                <Button Content="Remove unused group" Command="{Binding RemoveCategoryCommand}" Margin="0,0,12,8" />
+                <Button Content="Assign to inspected app" Command="{Binding AssignCategoryCommand}" Margin="0,0,0,8" />
+              </WrapPanel>
+              <TextBlock Text="Select an app row in Apps first, then return here to change its group." Style="{StaticResource Caption}" />
+            </StackPanel>
+          </Border>
+        </Expander>
+      </StackPanel>
+    </Expander>
   </StackPanel>
-  <StackPanel Grid.Column="2">
-   <Border Style="{StaticResource Card}" Padding="18"><StackPanel><TextBlock Text="Your file" Style="{StaticResource SectionTitle}"/><TextBlock Text="{Binding FileDisplayName}" Margin="0,16,0,12" FontWeight="SemiBold"/><Button Content="Change file" Command="{Binding BrowseFileCommand}" IsEnabled="{Binding IsIdle}"/><TextBlock Text="Saving this file does not install the app." Style="{StaticResource SecondaryText}" Margin="0,16,0,0"/></StackPanel></Border>
-   <Border Style="{StaticResource Card}" Padding="18" Margin="0,16,0,0"><StackPanel><TextBlock Text="Need help?" Style="{StaticResource SectionTitle}"/><TextBlock Text="Follow the steps. You can go back at any time. Technical settings are kept in More options." Style="{StaticResource Caption}" Margin="0,12,0,0"/></StackPanel></Border>
-  </StackPanel>
- </Grid>
- <Border Style="{StaticResource Card}" Margin="0,16,0,0"><StackPanel><ProgressBar IsIndeterminate="True" Height="4" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="{StaticResource AccentBrush}"/><Button Content="Cancel operation" Command="{Binding CancelCommand}" IsEnabled="{Binding IsBusy}" HorizontalAlignment="Left" Margin="0,12,0,12"/><TextBox Text="{Binding Status, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="180" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="File operation report"/></StackPanel></Border>
- <Expander Header="Manage saved files and groups" Foreground="{StaticResource TextBrush}" Margin="0,20,0,0"><Border Style="{StaticResource Card}" Margin="0,12,0,0"><StackPanel IsEnabled="{Binding IsIdle}">
-  <Button Content="Check saved files" Command="{Binding VerifyCommand}" HorizontalAlignment="Left"/><TextBlock Text="Recheck SHA-256 file fingerprints and report missing or changed installers. Nothing is installed." Style="{StaticResource Caption}" Margin="0,8,0,20"/>
-  <TextBlock Text="New group name"/><TextBox Text="{Binding NewCategory, UpdateSourceTrigger=PropertyChanged}" Margin="0,6,0,0"/><TextBlock Text="Create a group before assigning it to an existing app." Style="{StaticResource Caption}" Margin="0,6,0,8"/><Button Content="Create group" Command="{Binding AddCategoryCommand}" HorizontalAlignment="Left"/>
-  <TextBlock Text="Existing group" Margin="0,16,0,6"/><ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/><TextBlock Text="Built-in choices stay available for new imports. Only unused saved groups can be removed." Style="{StaticResource Caption}" Margin="0,6,0,12"/>
-  <WrapPanel><Button Content="Remove unused group" Command="{Binding RemoveCategoryCommand}" Margin="0,0,12,8"/><Button Content="Assign to inspected app" Command="{Binding AssignCategoryCommand}" Margin="0,0,0,8"/></WrapPanel><TextBlock Text="Select an app row in Apps first, then return here to change its group." Style="{StaticResource Caption}"/>
- </StackPanel></Border></Expander>
- </StackPanel>
 </UserControl>

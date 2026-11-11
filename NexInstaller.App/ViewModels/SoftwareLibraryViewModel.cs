@@ -33,8 +33,12 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
         "\n\nFiles (declared SHA-256; not yet verified):\n" + string.Join("\n", Package.Manifest.Files.Select(file => $"{file.Path}\n{file.Sha256}"));
 }
 
-public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose the apps this laptop needs, then review your install list.")
+public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for this laptop", "Tick the apps you need, then add them to your install list.")
 {
+    public RelayCommand? OpenAddFilesCommand { get; set; }
+    public string EmptyActionLabel => all.Count == 0 ? "Add your first app" : "Add another app";
+    public string EmptyHeading => all.Count == 0 ? "Your app library is empty" : "No apps match your filters";
+    public string EmptyDescription => all.Count == 0 ? "Add a setup file to start building your offline library." : "Try another search or group, or check the computer type filter.";
     public InstallationQueueViewModel? InstallationQueue { get; set; }
     public RelayCommand AddToQueueCommand => new(() => InstallationQueue?.AddSoftware(SelectedPackages));
     private readonly List<PackageRowViewModel> all = [];
@@ -93,6 +97,9 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Apps", "Choose t
         if (SelectedPackage is null || !Packages.Contains(SelectedPackage)) SelectedPackage = Packages.FirstOrDefault();
         Raise(nameof(Results));
         Raise(nameof(IsEmpty));
+        Raise(nameof(EmptyActionLabel));
+        Raise(nameof(EmptyHeading));
+        Raise(nameof(EmptyDescription));
     }
 
     private void SelectionChanged()

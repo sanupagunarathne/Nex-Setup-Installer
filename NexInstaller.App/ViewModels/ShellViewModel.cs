@@ -35,6 +35,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private string lastRefreshed = "Not scanned";
 
     public IReadOnlyList<NavigationItemViewModel> NavigationItems { get; }
+    public bool IsAppsWorkbench => navigation.CurrentPage == PageId.SoftwareLibrary;
     public bool IsHome => navigation.CurrentPage == PageId.Dashboard;
     public RelayCommand OpenAppsCommand { get; }
     public RelayCommand OpenFontsCommand { get; }
@@ -97,6 +98,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         OpenAppsCommand = new(() => navigation.Navigate(PageId.SoftwareLibrary));
         OpenFontsCommand = new(() => navigation.Navigate(PageId.FontLibrary));
         OpenPackagesCommand = new(() => navigation.Navigate(PageId.PackageManager));
+        SoftwareLibrary.OpenAddFilesCommand = OpenPackagesCommand;
         OpenPresetsCommand = new(() => navigation.Navigate(PageId.Presets));
     }
 
@@ -153,6 +155,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         UpdateNavigation();
         Raise(nameof(CurrentPage));
         Raise(nameof(IsHome));
+        Raise(nameof(IsAppsWorkbench));
     }
 
     private void UpdateNavigation()

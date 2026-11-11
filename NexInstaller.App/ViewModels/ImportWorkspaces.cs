@@ -43,7 +43,7 @@ public sealed partial class PackageManagerViewModel : ImportWorkspace
     private readonly ICategoryService? categories;
     private readonly IImportDialogs? dialogs;
     public PackageManagerViewModel(ShellViewModel shell, IPackageImportService? importer, ICategoryService? categories, IImportDialogs? dialogs)
-        : base("Add files", "Save setup files to your offline library.")
+        : base("Add an app", "Save an installer to your offline library.")
     {
         this.shell = shell; this.importer = importer; this.categories = categories; this.dialogs = dialogs;
         RebuildGroups([]);

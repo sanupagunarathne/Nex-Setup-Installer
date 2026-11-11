@@ -28,6 +28,15 @@ public sealed class ShellViewModelTests
     }
 
     [Fact]
+    public void EmptyLibraryActionOpensTheAddFilesWizard()
+    {
+        using var shell = CreateShell(new FakeInventory()); shell.OpenAppsCommand.Execute(null);
+        Assert.True(shell.IsAppsWorkbench);
+        shell.SoftwareLibrary.OpenAddFilesCommand!.Execute(null);
+        Assert.IsType<PackageManagerViewModel>(shell.CurrentPage); Assert.Equal(0, shell.PackageManager.Step);
+        Assert.False(shell.IsAppsWorkbench);
+    }
+    [Fact]
     public async Task RefreshDisplaysActualServiceResults()
     {
         using var shell = CreateShell(new FakeInventory());
