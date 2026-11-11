@@ -18,6 +18,15 @@ public sealed class CategoryTests
         Assert.DoesNotContain("Office", categories.List());
         Assert.Equal("Other", Assert.Single(storage.ReadManifests()).Manifest.Category);
     }
+    [Fact]
+    public void InvalidSavedCategoriesAreNotOverwritten()
+    {
+        using var library = new TemporaryDirectory();
+        var path = library.Write("categories.json", "{");
+        var categories = new CategoryService(new LibraryStorage(new LibraryPaths(library.Root, ".")));
+        Assert.Throws<System.Text.Json.JsonException>(() => categories.Add("Office"));
+        Assert.Equal("{", File.ReadAllText(path));
+    }
     [Theory]
     [InlineData("")][InlineData(" bad ")][InlineData("a\nb")]
     public void RejectsInvalidCategoryWithoutWriting(string value)

@@ -1,4 +1,7 @@
 using System.Windows;
+using NexInstaller.Core.Importing;
+using NexInstaller.Infrastructure.Importing;
+using NexInstaller.App.Services;
 using Microsoft.Extensions.DependencyInjection;
 using NexInstaller.App.ViewModels;
 using NexInstaller.Core.Library;
@@ -28,6 +31,11 @@ public partial class App : Application
             registrations.AddSingleton(configuration);
             registrations.AddSingleton(configuration.Paths);
             registrations.AddSingleton<NavigationState>();
+            registrations.AddSingleton<LibraryStorage>();
+            registrations.AddSingleton<IPackageImportService, PackageImportService>();
+            registrations.AddSingleton<IFontImportService, FontImportService>();
+            registrations.AddSingleton<ICategoryService, CategoryService>();
+            registrations.AddSingleton<IImportDialogs, ImportDialogs>();
             registrations.AddSingleton<IPackageManifestReader, JsonPackageManifestReader>();
             registrations.AddSingleton<IPackageCatalogService>(provider => new FileSystemPackageCatalogService(
                 configuration.Paths, provider.GetRequiredService<IPackageManifestReader>(),

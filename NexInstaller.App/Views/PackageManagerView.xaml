@@ -1,28 +1,37 @@
-<UserControl x:Class="NexInstaller.App.Views.PackageManagerView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<UserControl x:Class="NexInstaller.App.Views.PackageManagerView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 <StackPanel>
-  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-    <WrapPanel>
-      <Button Content="Import package" IsEnabled="False" Style="{StaticResource PrimaryButton}" Margin="0,0,12,8" />
-      <Button Content="Verify library" IsEnabled="False" Margin="0,0,12,8" />
-      <Button Content="Manage categories" IsEnabled="False" Margin="0,0,0,8" />
-    </WrapPanel>
-  </Border>
-  <Border Style="{StaticResource Card}">
-    <StackPanel>
-      <TextBlock Text="Bring your own installers" Style="{StaticResource SectionTitle}" />
-      <TextBlock Text="Import EXE files, MSI files, or complete installation folders without rebuilding the application." Style="{StaticResource SecondaryText}" Margin="0,12,0,24" />
-      <Border Style="{StaticResource InsetCard}" Padding="20">
-        <StackPanel>
-          <TextBlock Text="IMPORT WORKFLOW · PHASE 3" Style="{StaticResource Eyebrow}" Foreground="{StaticResource AccentBrush}" />
-          <TextBlock Text="01   Select source and enter package details" Margin="0,16,0,12" />
-          <TextBlock Text="02   Validate files, hash contents, and check duplicates" Margin="0,0,0,12" />
-          <TextBlock Text="03   Copy to the local library and create a manifest" />
-        </StackPanel>
-      </Border>
-      <TextBlock Text="Editing, replacement, removal, size details, and verification will appear here in later phases. Importing will never start an installer automatically." Style="{StaticResource Caption}" Margin="0,20,0,0" />
-    </StackPanel>
-  </Border>
-</StackPanel>
-</UserControl>
+ <StackPanel IsEnabled="{Binding IsIdle}">
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
+   <TextBlock Text="1 · Choose an installer or complete folder" Style="{StaticResource SectionTitle}"/>
+   <WrapPanel Margin="0,16,0,8"><Button Content="Choose EXE / MSI" Command="{Binding BrowseFileCommand}" Margin="0,0,12,0"/><Button Content="Choose folder" Command="{Binding BrowseFolderCommand}"/></WrapPanel>
+   <TextBox Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Source path"/>
+   <TextBlock Text="For a folder, choose its installer entry point. Every file and subfolder will be copied." Style="{StaticResource Caption}" Margin="0,12,0,6"/>
+   <TextBox Text="{Binding EntryPoint, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Relative entry point"/>
+   <Button Content="Choose folder entry point" Command="{Binding BrowseEntryCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+  </StackPanel></Border>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
+   <TextBlock Text="2 · Describe the package" Style="{StaticResource SectionTitle}"/>
+<TextBlock Text="Package name" Style="{StaticResource Caption}" Margin="0,12,0,6"/><TextBox Text="{Binding PackageName, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Package name"/><TextBlock Text="Version" Style="{StaticResource Caption}" Margin="0,12,0,6"/><TextBox Text="{Binding Version, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Version"/><TextBlock Text="Category (enter a custom name or choose an existing category)" Style="{StaticResource Caption}" Margin="0,12,0,6"/><TextBox Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Category (enter a custom name or choose an existing category)"/><ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}" AutomationProperties.Name="Import category" Margin="0,8,0,0"/><TextBlock Text="Description (optional)" Style="{StaticResource Caption}" Margin="0,12,0,6"/><TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Description (optional)"/>
+   <TextBlock Text="Architecture" Style="{StaticResource Caption}" Margin="0,12,0,6"/>
+   <ComboBox ItemsSource="{Binding Architectures}" SelectedItem="{Binding Architecture}"/>
+   <TextBlock Text="Installation mode" Style="{StaticResource Caption}" Margin="0,12,0,6"/>
+   <ComboBox ItemsSource="{Binding Modes}" SelectedIndex="0"/>
+   <TextBlock Text="Manual is the only available mode until verified unattended profiles are implemented in Phase 4." Style="{StaticResource Caption}" Margin="0,8,0,0"/>
+   <StackPanel Orientation="Horizontal" Margin="0,12,0,0"><CheckBox IsChecked="{Binding RequiresAdministrator}"/><TextBlock Text="Installer requires administrator permissions" Margin="10,0,0,0"/></StackPanel>
+  </StackPanel></Border>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
+   <TextBlock Text="3 · Review and import" Style="{StaticResource SectionTitle}"/>
+   <TextBlock Text="Your selected source is copied into the active library. All copied files must match their calculated SHA-256 hashes. Nothing is installed or executed." Style="{StaticResource SecondaryText}" Margin="0,12,0,16"/>
+   <WrapPanel><Button Content="Import package" Command="{Binding ImportCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,12,0"/><Button Content="Verify package hashes" Command="{Binding VerifyCommand}"/></WrapPanel>
+  </StackPanel></Border>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
+   <TextBlock Text="Category management" Style="{StaticResource SectionTitle}"/>
+   <TextBox Text="{Binding NewCategory, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="New category" Margin="0,12,0,8"/>
+   <Button Content="Create category" Command="{Binding AddCategoryCommand}" HorizontalAlignment="Left"/>
+   <ComboBox ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" Margin="0,12,0,8" AutomationProperties.Name="Managed category"/>
+   <WrapPanel><Button Content="Remove unused category" Command="{Binding RemoveCategoryCommand}" Margin="0,0,12,8"/><Button Content="Assign to inspected package" Command="{Binding AssignCategoryCommand}" Margin="0,0,0,8"/></WrapPanel>
+   <TextBlock Text="To change an existing package's category, inspect its row in Software Library, then choose a category here and assign it. A custom category typed into the import form is created by that manifest." Style="{StaticResource Caption}"/>
+  </StackPanel></Border>
+ </StackPanel>
+ <Border Style="{StaticResource Card}"><StackPanel><ProgressBar IsIndeterminate="True" Height="4" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="{StaticResource AccentBrush}"/><Button Content="Cancel operation" Command="{Binding CancelCommand}" IsEnabled="{Binding IsBusy}" HorizontalAlignment="Left" Margin="0,12,0,12"/><TextBox Text="{Binding Status, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" MaxHeight="240" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Package operation report"/></StackPanel></Border>
+</StackPanel></UserControl>

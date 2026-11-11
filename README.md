@@ -2,15 +2,16 @@
 
 Portable, offline Windows software and font installation workspace.
 
-Phase 2 adds a functional software library to the .NET 10 WPF/MVVM foundation.
-It discovers local JSON manifests on launch and refresh, validates metadata,
-portable paths and required files, reports unavailable packages and malformed
-manifests, and supports search, category/architecture filters, multiple selection,
-size display, and package details. The dashboard counts available software.
-Imports, installation, preset editing, and history management remain future phases.
+Phase 3 adds EXE/MSI and complete-folder imports, staged SHA-256 copy verification,
+content duplicate detection, multiple-file/folder TTF/OTF imports, font previews,
+and category creation, removal of unused categories, and package category assignments.
+The Software Library supports discovery, metadata/path checks, filtering, multiple
+selection, and details. Installer execution and Windows font installation remain
+Phase 4 work. No import runs an installer or registers a font with Windows.
 
-See [manifest format and examples](docs/PACKAGE-MANIFESTS.md) and
-[Phase 2 validation and usage](docs/PHASE-2.md).
+See [Phase 3 import guide and validation](docs/PHASE-3.md),
+[manifest format](docs/PACKAGE-MANIFESTS.md), and
+[Phase 2 library guide](docs/PHASE-2.md).
 
 ## Solution
 
@@ -64,7 +65,9 @@ Dashboard software counts include only successfully parsed, unique-ID,
 architecture-compatible packages whose declared files passed path and readability
 checks. Missing or incompatible packages remain visible as unavailable. Bad
 manifests appear in diagnostics. This does not verify SHA-256 contents or establish
-that an installer is safe or licensed; no installer can run in Phase 2.
+that an installer is safe or licensed; no installer can run in Phase 3. Use Package Manager to verify hashes explicitly;
+software availability counts still reflect metadata and file checks, not a cached
+verification result.
 Font, preset, and session tiles still count files, not validated records.
 No sample statistics or real installers are shipped.
 
@@ -101,5 +104,5 @@ explicit instruction.
 
 Installer binaries, fonts, logs, local caches, and customer data are ignored.
 Populate the real offline library separately; commit only safe examples,
-schemas, configuration, and empty directory markers. Manifest parsing and discovery are implemented in Phase 2. Import validation,
-hashing, and library editing are Phase 3 work.
+schemas, configuration, and empty directory markers. Manifest parsing and discovery are implemented in Phase 2. Phase 3 includes imports, SHA-256 checks, font import, and category metadata editing.
+Full package replacement/removal and other library management remain future work.

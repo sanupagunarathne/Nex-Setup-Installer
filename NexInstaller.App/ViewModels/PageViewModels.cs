@@ -11,19 +11,9 @@ public sealed class DashboardViewModel(ShellViewModel shell) : PageViewModel("Da
     public ShellViewModel Shell { get; } = shell;
 }
 
-public sealed class FontLibraryViewModel : PageViewModel
-{
-    public FontLibraryViewModel() : base("Font Library", "Keep licensed typefaces ready for every workstation.") { }
-}
-
 public sealed class PresetsViewModel : PageViewModel
 {
     public PresetsViewModel() : base("Installation Presets", "Bring your most common workstation setups together.") { }
-}
-
-public sealed class PackageManagerViewModel : PageViewModel
-{
-    public PackageManagerViewModel() : base("Package Manager", "Maintain the packages in your portable library.") { }
 }
 
 public sealed class HistoryViewModel : PageViewModel
