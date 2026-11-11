@@ -1,0 +1,18 @@
+[
+  {
+    "id": "replace-with-reviewed-profile-id",
+    "packageId": "replace-with-imported-package-id",
+    "version": "replace-with-exact-version",
+    "architecture": "X64",
+    "installerType": "Exe",
+    "entrySha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "arguments": [],
+    "noRestartVerified": false,
+    "verificationNote": "Template only. Do not enable until vendor documentation and isolated Windows tests verify offline installation, completion, licensing, exit codes and no restart. Supply only vendor-verified argument tokens.",
+    "verifiedAtUtc": "2000-01-01T00:00:00Z",
+    "successExitCodes": [
+      0
+    ],
+    "restartExitCodes": []
+  }
+]

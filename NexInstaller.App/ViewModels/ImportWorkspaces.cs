@@ -135,6 +135,8 @@ public sealed class FontLibraryViewModel : ImportWorkspace
         BrowseFilesCommand = new(() => ImportChosen(false), ex => Status = ex.Message);
         BrowseFolderCommand = new(() => ImportChosen(true), ex => Status = ex.Message);
     }
+    public InstallationQueueViewModel InstallationQueue => shell.InstallationQueue;
+    public RelayCommand QueueSelectedCommand => new(() => { if (SelectedFont is not null) InstallationQueue.AddFont(SelectedFont, shell.LibraryRoot, LicenseConfirmed); });
     public bool LicenseConfirmed { get; set; }
     public ObservableCollection<FontRecord> Fonts { get; } = [];
     private FontRecord? selected;

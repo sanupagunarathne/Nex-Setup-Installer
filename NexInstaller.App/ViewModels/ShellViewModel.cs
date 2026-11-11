@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using NexInstaller.Core.Installation;
 using NexInstaller.Core.Importing;
 using NexInstaller.Core.Library;
 using NexInstaller.Core.Packages;
@@ -15,6 +16,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private readonly ILocalLog log;
     private readonly IPackageCatalogService catalogService;
     private PackageCatalog? catalog;
+    public InstallationQueueViewModel InstallationQueue { get; }
     public PackageManagerViewModel PackageManager { get; }
     public FontLibraryViewModel FontLibrary { get; }
     public SoftwareLibraryViewModel SoftwareLibrary { get; } = new();
@@ -44,13 +46,15 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null)
     {
         this.navigation = navigation;
         this.inventory = inventory;
         this.log = log;
         this.catalogService = catalogService;
         Configuration = configuration;
+        InstallationQueue = new(installationEngine);
+        SoftwareLibrary.InstallationQueue = InstallationQueue;
         PackageManager = new(this, packageImports, categories, dialogs);
         FontLibrary = new(this, fontImports, dialogs);
         pages = new()
