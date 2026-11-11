@@ -2,16 +2,18 @@
 
 Portable, offline Windows software and font installation workspace.
 
-Phase 3 adds EXE/MSI and complete-folder imports, staged SHA-256 copy verification,
-content duplicate detection, multiple-file/folder TTF/OTF imports, font previews,
-and category creation, removal of unused categories, and package category assignments.
-The Software Library supports discovery, metadata/path checks, filtering, multiple
-selection, and details. Installer execution and Windows font installation remain
-Phase 4 work. No import runs an installer or registers a font with Windows.
+Phase 4 adds a sequential installation queue for EXE/MSI software and current-user
+Windows fonts. Every item requires fresh hash/path checks and technician
+confirmation. Manual EXEs receive no guessed switches. Unattended software needs
+an explicitly verified, exact-package local profile. Standard UAC and Windows
+security protections remain in place. NEX never requests an automatic restart.
 
-See [Phase 3 import guide and validation](docs/PHASE-3.md),
-[manifest format](docs/PACKAGE-MANIFESTS.md), and
-[Phase 2 library guide](docs/PHASE-2.md).
+The app can now execute installers **after you start a queue and confirm each
+item**. Imports still only copy files. Tests use fake execution and native APIs;
+Windows runtime and real installer validation remain outstanding.
+
+See the [Phase 4 installation guide](docs/PHASE-4.md),
+[Phase 3 import guide](docs/PHASE-3.md), and [manifest format](docs/PACKAGE-MANIFESTS.md).
 
 ## Solution
 
@@ -65,7 +67,7 @@ Dashboard software counts include only successfully parsed, unique-ID,
 architecture-compatible packages whose declared files passed path and readability
 checks. Missing or incompatible packages remain visible as unavailable. Bad
 manifests appear in diagnostics. This does not verify SHA-256 contents or establish
-that an installer is safe or licensed; no installer can run in Phase 3. Use Package Manager to verify hashes explicitly;
+that an installer is safe or licensed; installation requires a separate queue action and confirmation. Use Package Manager to verify hashes explicitly;
 software availability counts still reflect metadata and file checks, not a cached
 verification result.
 Font, preset, and session tiles still count files, not validated records.
@@ -83,7 +85,7 @@ Structured JSONL logs use `logs` beside the executable, falling back to
 startup; Settings reports its availability. Logs contain application events and
 exception types, not customer identities or exception payloads. Inventory notices
 and Settings show local paths. Logs remain local; rotation and retention are
-future work. The shell runs `asInvoker` and does not request administrator access.
+future work. The shell runs `asInvoker`; an installer requiring elevation uses a standard Windows UAC request. Fonts are installed for the account running NEX.
 
 See [portable deployment](docs/PORTABLE.md) and
 [development scope and validation](docs/DEVELOPMENT.md).

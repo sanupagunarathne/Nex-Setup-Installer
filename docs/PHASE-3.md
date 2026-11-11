@@ -1,3 +1,5 @@
+> Historical Phase 3 record. Installation is now implemented: [Phase 4](PHASE-4.md).
+
 # Phase 3 — offline import system (0.3.0)
 
 ## Using the new UI

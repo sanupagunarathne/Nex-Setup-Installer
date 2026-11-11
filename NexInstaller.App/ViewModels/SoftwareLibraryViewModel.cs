@@ -35,6 +35,8 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
 
 public sealed class SoftwareLibraryViewModel() : PageViewModel("Software Library", "Discover, inspect, and select software in your offline library.")
 {
+    public InstallationQueueViewModel? InstallationQueue { get; set; }
+    public RelayCommand AddToQueueCommand => new(() => InstallationQueue?.AddSoftware(SelectedPackages));
     private readonly List<PackageRowViewModel> all = [];
     private string search = "";
     private string architecture = "All architectures";

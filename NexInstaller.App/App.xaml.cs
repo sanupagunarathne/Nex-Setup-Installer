@@ -1,4 +1,6 @@
 using System.Windows;
+using NexInstaller.Core.Installation;
+using NexInstaller.Infrastructure.Installation;
 using NexInstaller.Core.Importing;
 using NexInstaller.Infrastructure.Importing;
 using NexInstaller.App.Services;
@@ -31,6 +33,13 @@ public partial class App : Application
             registrations.AddSingleton(configuration);
             registrations.AddSingleton(configuration.Paths);
             registrations.AddSingleton<NavigationState>();
+            registrations.AddSingleton(new VerifiedProfiles(System.IO.Path.Combine(applicationDirectory, "installation-profiles.json")));
+            registrations.AddSingleton<IInstallationEnvironment, WindowsInstallationEnvironment>();
+            registrations.AddSingleton<IInstallationPreflight, InstallationPreflight>();
+            registrations.AddSingleton<IInstallationExecutor, WindowsInstallationExecutor>();
+            registrations.AddSingleton<IInstallationInteraction, InstallationInteraction>();
+            registrations.AddSingleton<IInstallationJournal>(_ => new JsonInstallationJournal(applicationDirectory, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
+            registrations.AddSingleton<IInstallationEngine, InstallationEngine>();
             registrations.AddSingleton<LibraryStorage>();
             registrations.AddSingleton<IPackageImportService, PackageImportService>();
             registrations.AddSingleton<IFontImportService, FontImportService>();

@@ -30,3 +30,6 @@ package-library/**
 *.ttf
 *.otf
 .DS_Store
+
+# Technician-verified local unattended profiles; keep only schemas/examples in Git
+installation-profiles.json

@@ -19,7 +19,7 @@
                     <StackPanel>
                         <TextBlock Text="●   OFFLINE WORKSPACE" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="SemiBold" />
                         <TextBlock Text="Portable · Windows x64" Style="{StaticResource Caption}" Margin="0,8,0,0" />
-                        <TextBlock Text="v0.3 · Offline imports" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+                        <TextBlock Text="v0.4 · Installations" Style="{StaticResource Caption}" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
                 <StackPanel>
