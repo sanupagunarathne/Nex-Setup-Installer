@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "example-editor",
+  "name": "Example Editor",
+  "version": "1.0",
+  "architecture": "X64",
+  "category": "Utilities",
+  "description": "Documentation only. Supply a licensed installer and its real SHA-256.",
+  "installerType": "Exe",
+  "installationMode": "Manual",
+  "requiresAdministrator": false,
+  "entryPoint": "packages/example-editor/setup.exe",
+  "files": [
+    {
+      "path": "packages/example-editor/setup.exe",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ]
+}
