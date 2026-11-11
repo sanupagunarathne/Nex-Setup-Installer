@@ -1,0 +1,31 @@
+<UserControl x:Class="NexInstaller.App.Views.SoftwareLibraryView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <TextBox Text="Search software — available in Phase 2" IsEnabled="False" Margin="0,0,16,0" AutomationProperties.Name="Search software (planned)" />
+      <Button Grid.Column="1" Content="All categories" IsEnabled="False" />
+    </Grid>
+  </Border>
+  <Grid>
+    <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="240" /></Grid.ColumnDefinitions>
+    <Border Style="{StaticResource Card}" MinHeight="340">
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="360">
+        <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="36" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,20" />
+        <TextBlock Text="Your software collection starts here" Style="{StaticResource SectionTitle}" TextAlignment="Center" />
+        <TextBlock Text="Package discovery, categories, details, search, and availability checks are planned for Phase 2." Style="{StaticResource SecondaryText}" TextAlignment="Center" Margin="0,12,0,0" />
+      </StackPanel>
+    </Border>
+    <Border Grid.Column="2" Style="{StaticResource Card}">
+      <StackPanel>
+        <TextBlock Text="Installation queue" Style="{StaticResource SectionTitle}" />
+        <TextBlock Text="The queue will appear here when the installation engine is available." Style="{StaticResource SecondaryText}" Margin="0,12,0,24" />
+        <Button Content="Review and install" IsEnabled="False" />
+        <TextBlock Text="Planned for Phase 4" Style="{StaticResource Caption}" Margin="0,12,0,0" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</StackPanel>
+</UserControl>

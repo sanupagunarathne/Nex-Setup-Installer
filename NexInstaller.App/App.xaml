@@ -1,0 +1,20 @@
+<Application x:Class="NexInstaller.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:NexInstaller.App.ViewModels"
+             xmlns:views="clr-namespace:NexInstaller.App.Views">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/DesignSystem.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type vm:DashboardViewModel}"><views:DashboardView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SoftwareLibraryViewModel}"><views:SoftwareLibraryView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:FontLibraryViewModel}"><views:FontLibraryView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PresetsViewModel}"><views:PresetsView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:PackageManagerViewModel}"><views:PackageManagerView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:HistoryViewModel}"><views:HistoryView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><views:SettingsView /></DataTemplate>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
