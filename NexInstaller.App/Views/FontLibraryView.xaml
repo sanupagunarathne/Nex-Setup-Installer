@@ -1,9 +1,9 @@
 <UserControl x:Class="NexInstaller.App.Views.FontLibraryView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:NexInstaller.App.Views">
 <StackPanel>
  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel IsEnabled="{Binding IsIdle}">
-  <TextBlock Text="Import licensed fonts" Style="{StaticResource SectionTitle}"/>
+  <TextBlock Text="Add licensed fonts" Style="{StaticResource SectionTitle}"/>
   <StackPanel Orientation="Horizontal" Margin="0,16,0,16"><CheckBox IsChecked="{Binding LicenseConfirmed}" AutomationProperties.Name="Confirm font licenses"/><TextBlock Text="I confirm the font licenses permit use on destination devices." Margin="10,0,0,0"/></StackPanel>
-  <WrapPanel><Button Content="Import font files" Command="{Binding BrowseFilesCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,12,8"/><Button Content="Import font folder" Command="{Binding BrowseFolderCommand}" Margin="0,0,0,8"/></WrapPanel>
+  <WrapPanel><Button Content="Add font files" Command="{Binding BrowseFilesCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,12,8"/><Button Content="Add a font folder" Command="{Binding BrowseFolderCommand}" Margin="0,0,0,8"/></WrapPanel>
   <TextBlock Text="TTF / OTF · Recursive folder imports · Duplicate detection · Current-user installation available through the queue" Style="{StaticResource Caption}"/>
  </StackPanel></Border>
  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
@@ -13,7 +13,7 @@
   <TextBlock x:Name="PreviewNotice" Text="Select a font to preview it where WPF supports it." Style="{StaticResource Caption}"/>
   <TextBlock Text="{Binding SelectedFont.Path}" Style="{StaticResource Caption}" Margin="0,8,0,0"/>
   <TextBlock Text="{Binding SelectedFont.Sha256}" Style="{StaticResource Caption}"/>
-  <Button Content="Queue selected font for current-user installation" Command="{Binding QueueSelectedCommand}" Margin="0,12,0,0"/>
+  <Button Content="Add selected font to install list" Command="{Binding QueueSelectedCommand}" Margin="0,12,0,0"/>
  </StackPanel></Border>
  <Border Style="{StaticResource Card}"><StackPanel>
   <ProgressBar IsIndeterminate="True" Height="4" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="{StaticResource AccentBrush}"/>
