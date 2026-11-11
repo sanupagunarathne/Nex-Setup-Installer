@@ -23,6 +23,8 @@ public sealed class InstallationQueueViewModel : ObservableObject
     public InstallationQueueViewModel(IInstallationEngine? engine)
     {
         this.engine = engine;
+        Items.CollectionChanged += (_, _) => { Raise(nameof(HasItems)); Raise(nameof(HasContent)); Raise(nameof(IsEmpty)); };
+        Results.CollectionChanged += (_, _) => { Raise(nameof(HasContent)); Raise(nameof(IsEmpty)); };
         StartCommand = new(StartAsync, ex => Status = ex.Message);
         ClearCommand = new(() => { if (!IsBusy) { Items.Clear(); Raise(nameof(Count)); } });
         StopCommand = new(() => { cancellation?.Cancel(); Status = "Stop requested. Waiting for any active installer to finish; it will not be killed."; });
@@ -31,6 +33,10 @@ public sealed class InstallationQueueViewModel : ObservableObject
     public ObservableCollection<InstallationQueueItem> Items { get; } = [];
     public ObservableCollection<InstallationResult> Results { get; } = [];
     public int Count => Items.Count;
+    public bool HasItems => Items.Count > 0;
+    public bool HasContent => HasItems || Results.Count > 0;
+    public bool IsEmpty => !HasContent;
+    public bool HasStarted { get; private set; }
     public bool IsBusy { get => busy; private set { busy = value; Raise(); Raise(nameof(IsIdle)); } }
     public bool IsIdle => !IsBusy;
     public double Percent { get => percent; private set { percent = value; Raise(); } }
@@ -70,6 +76,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
         if (engine is null) { Status = "Installation services are unavailable."; return; }
         using var source = new CancellationTokenSource(); cancellation = source;
         var snapshot = Items.ToArray(); var continueOnFailure = ContinueOnFailure;
+        HasStarted = true; Raise(nameof(HasStarted));
         IsBusy = true; Percent = 0; Results.Clear();
         foreach (var item in snapshot) item.Status = "Waiting";
         var progressGate = new object(); var acceptProgress = true;

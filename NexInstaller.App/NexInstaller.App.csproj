@@ -12,7 +12,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>NexInstaller</AssemblyName>
     <Product>NEX Installer</Product>
-    <Version>0.5.1</Version>
+    <Version>0.5.2</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../NexInstaller.Core/NexInstaller.Core.csproj" />

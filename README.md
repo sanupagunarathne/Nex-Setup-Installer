@@ -2,9 +2,10 @@
 
 Portable, offline Windows software and font installation workspace.
 
-The approved blue workspace (0.5.1) simplifies navigation and Add files without
-removing the existing installation, verification, preset, history or reporting
-capabilities. See [design changes and validation](docs/BLUE-WORKSPACE.md).
+The approved blue workspace now includes reference-aligned Apps and Add files
+layouts (0.5.2). See [layout changes and when to add software/fonts](docs/REFERENCE-LAYOUTS.md)
+and the [original design update](docs/BLUE-WORKSPACE.md). Existing installation,
+verification, preset, history and reporting capabilities remain available.
 
 Phase 5 adds editable JSON installation presets, installation history reconstructed
 from local journal events, and JSON/CSV report export. Presets store package IDs
