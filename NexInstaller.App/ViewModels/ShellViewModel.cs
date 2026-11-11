@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using NexInstaller.Core.Importing;
 using NexInstaller.Core.Library;
 using NexInstaller.Core.Packages;
 using NexInstaller.Core.Logging;
@@ -14,11 +15,14 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private readonly ILocalLog log;
     private readonly IPackageCatalogService catalogService;
     private PackageCatalog? catalog;
+    public PackageManagerViewModel PackageManager { get; }
+    public FontLibraryViewModel FontLibrary { get; }
     public SoftwareLibraryViewModel SoftwareLibrary { get; } = new();
     private readonly Dictionary<PageId, PageViewModel> pages;
     private readonly CancellationTokenSource lifetime = new();
     private LibrarySnapshot? snapshot;
     private bool busy;
+    private bool refreshAgain;
     private string libraryStatus = "Library has not been scanned yet.";
     private string lastRefreshed = "Not scanned";
 
@@ -40,20 +44,22 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null)
     {
         this.navigation = navigation;
         this.inventory = inventory;
         this.log = log;
         this.catalogService = catalogService;
         Configuration = configuration;
+        PackageManager = new(this, packageImports, categories, dialogs);
+        FontLibrary = new(this, fontImports, dialogs);
         pages = new()
         {
             [PageId.Dashboard] = new DashboardViewModel(this),
             [PageId.SoftwareLibrary] = SoftwareLibrary,
-            [PageId.FontLibrary] = new FontLibraryViewModel(),
+            [PageId.FontLibrary] = FontLibrary,
             [PageId.Presets] = new PresetsViewModel(),
-            [PageId.PackageManager] = new PackageManagerViewModel(),
+            [PageId.PackageManager] = PackageManager,
             [PageId.History] = new HistoryViewModel(),
             [PageId.Settings] = new SettingsViewModel(this)
         };
@@ -76,29 +82,36 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
 
     public async Task RefreshAsync()
     {
-        if (IsBusy || lifetime.IsCancellationRequested) return;
-        IsBusy = true;
-        LibraryStatus = "Reading local library…";
-        try
+        if (lifetime.IsCancellationRequested) return;
+        if (IsBusy) { refreshAgain = true; return; }
+        do
         {
-            var newSnapshot = await inventory.ReadAsync(lifetime.Token);
-            var newCatalog = await catalogService.DiscoverAsync(lifetime.Token);
-            snapshot = newSnapshot;
-            catalog = newCatalog;
-            SoftwareLibrary.Load(catalog);
-            var notices = snapshot.Warnings.Concat(catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}")).ToArray();
-            LibraryStatus = notices.Length == 0
-                ? $"Library folders read successfully. {catalog.AvailableCount} available of {catalog.Packages.Count} discovered software packages. Hashes are not yet verified."
-                : string.Join(Environment.NewLine, notices);
-            LastRefreshed = DateTime.Now.ToString("g");
-            foreach (var property in new[] { nameof(AvailablePackageCount), nameof(FontCount), nameof(PresetCount), nameof(SessionCount) })
-                Raise(property);
-            log.TryWrite("library.scan", $"Read library inventory with {snapshot.Warnings.Count} warnings.");
-            Raise(nameof(LogDirectory));
-        }
-        catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
-        catch (Exception ex) { ReportRefreshError(ex); }
-        finally { IsBusy = false; }
+            refreshAgain = false;
+            IsBusy = true;
+            LibraryStatus = "Reading local library…";
+            try
+            {
+                var newSnapshot = await inventory.ReadAsync(lifetime.Token);
+                var newCatalog = await catalogService.DiscoverAsync(lifetime.Token);
+                snapshot = newSnapshot;
+                catalog = newCatalog;
+                SoftwareLibrary.Load(catalog);
+                await PackageManager.ReloadCategoriesAsync();
+                await FontLibrary.ReloadAsync();
+                var notices = snapshot.Warnings.Concat(catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}")).ToArray();
+                LibraryStatus = notices.Length == 0
+                    ? $"Library folders read successfully. {catalog.AvailableCount} available of {catalog.Packages.Count} discovered software packages. Hashes are not yet verified."
+                    : string.Join(Environment.NewLine, notices);
+                LastRefreshed = DateTime.Now.ToString("g");
+                foreach (var property in new[] { nameof(AvailablePackageCount), nameof(FontCount), nameof(PresetCount), nameof(SessionCount) })
+                    Raise(property);
+                log.TryWrite("library.scan", $"Read library inventory with {snapshot.Warnings.Count} warnings.");
+                Raise(nameof(LogDirectory));
+            }
+            catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
+            catch (Exception ex) { ReportRefreshError(ex); }
+            finally { IsBusy = false; }
+        } while (refreshAgain && !lifetime.IsCancellationRequested);
     }
 
     private void ReportRefreshError(Exception ex)
@@ -110,6 +123,8 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         log.TryWrite("library.scan.failed", "Local inventory scan failed.", ex);
         Raise(nameof(LogDirectory));
     }
+
+    public void RecordOperation(string eventName, string message) => log.TryWrite(eventName, message);
 
     private void OnNavigationChanged(object? sender, PropertyChangedEventArgs e)
     {

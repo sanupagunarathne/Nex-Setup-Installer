@@ -53,7 +53,7 @@
         <TextBlock Text="Grow your library" Style="{StaticResource SectionTitle}" />
         <TextBlock Text="Manage your local collection of installer packages." Style="{StaticResource SecondaryText}" Margin="0,8,0,18" />
         <Button Content="Open package manager →" Command="{Binding Shell.OpenPackagesCommand}" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" />
-        <TextBlock Text="Import wizard planned for Phase 3" Style="{StaticResource Caption}" Margin="0,12,0,0" />
+        <TextBlock Text="EXE / MSI / folder imports available" Style="{StaticResource Caption}" Margin="0,12,0,0" />
       </StackPanel>
     </Border>
     <Border Grid.Column="2" Style="{StaticResource Card}">

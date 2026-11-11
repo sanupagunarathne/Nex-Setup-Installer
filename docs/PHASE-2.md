@@ -1,3 +1,5 @@
+> Historical Phase 2 record. Current import functionality: [Phase 3](PHASE-3.md).
+
 # Phase 2 — software package library
 
 ## Delivered behavior

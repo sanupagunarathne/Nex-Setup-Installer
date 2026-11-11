@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "NEX local categories",
+  "type": "array",
+  "maxItems": 1000,
+  "uniqueItems": true,
+  "items": { "type": "string", "minLength": 1, "maxLength": 80 },
+  "description": "Stored at library-root/categories.json. Runtime also rejects control characters and surrounding whitespace and deduplicates names without case sensitivity. Categories in package manifests are included automatically."
+}
