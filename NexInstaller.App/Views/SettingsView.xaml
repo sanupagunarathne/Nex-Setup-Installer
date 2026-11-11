@@ -1,0 +1,32 @@
+<UserControl x:Class="NexInstaller.App.Views.SettingsView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <StackPanel>
+      <TextBlock Text="Library location" Style="{StaticResource SectionTitle}" />
+      <TextBlock Text="Active root" Style="{StaticResource Caption}" Margin="0,16,0,8" />
+      <TextBox Text="{Binding Shell.LibraryRoot, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Active library root" />
+      <TextBlock Text="{Binding Shell.ConfigurationNotice}" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+      <TextBlock Text="Configuration file" Style="{StaticResource Caption}" Margin="0,20,0,8" />
+      <TextBox Text="{Binding Shell.ConfigurationPath, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Configuration file path" />
+      <TextBlock Text="Edit libraryRoot in nexinstaller.json while the app is closed, then reopen it. Reading the library does not require write access." Style="{StaticResource Caption}" Margin="0,12,0,0" />
+    </StackPanel>
+  </Border>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <StackPanel>
+      <TextBlock Text="Local diagnostics" Style="{StaticResource SectionTitle}" />
+      <TextBlock Text="Structured JSON logs" Style="{StaticResource Caption}" Margin="0,16,0,8" />
+      <TextBox Text="{Binding Shell.LogDirectory, Mode=OneWay}" IsReadOnly="True" AutomationProperties.Name="Log directory" />
+      <TextBlock Text="Logs use the application folder when writable, with a fallback to local app data. No telemetry or network service is used." Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+    </StackPanel>
+  </Border>
+  <Border Style="{StaticResource Card}">
+    <StackPanel>
+      <TextBlock Text="NEX Installer" Style="{StaticResource SectionTitle}" />
+      <TextBlock Text="Version 0.1.0 · Phase 1 foundation · Windows 10/11 x64" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+      <TextBlock Text="The application runs with the current user's permissions. Installation, UAC requests, and restart reporting will be added with the installation engine. Windows will never be restarted automatically." Style="{StaticResource Caption}" Margin="0,12,0,0" />
+    </StackPanel>
+  </Border>
+</StackPanel>
+</UserControl>

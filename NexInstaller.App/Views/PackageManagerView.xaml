@@ -1,0 +1,28 @@
+<UserControl x:Class="NexInstaller.App.Views.PackageManagerView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <WrapPanel>
+      <Button Content="Import package" IsEnabled="False" Style="{StaticResource PrimaryButton}" Margin="0,0,12,8" />
+      <Button Content="Verify library" IsEnabled="False" Margin="0,0,12,8" />
+      <Button Content="Manage categories" IsEnabled="False" Margin="0,0,0,8" />
+    </WrapPanel>
+  </Border>
+  <Border Style="{StaticResource Card}">
+    <StackPanel>
+      <TextBlock Text="Bring your own installers" Style="{StaticResource SectionTitle}" />
+      <TextBlock Text="Import EXE files, MSI files, or complete installation folders without rebuilding the application." Style="{StaticResource SecondaryText}" Margin="0,12,0,24" />
+      <Border Style="{StaticResource InsetCard}" Padding="20">
+        <StackPanel>
+          <TextBlock Text="IMPORT WORKFLOW · PHASE 3" Style="{StaticResource Eyebrow}" Foreground="{StaticResource AccentBrush}" />
+          <TextBlock Text="01   Select source and enter package details" Margin="0,16,0,12" />
+          <TextBlock Text="02   Validate files, hash contents, and check duplicates" Margin="0,0,0,12" />
+          <TextBlock Text="03   Copy to the local library and create a manifest" />
+        </StackPanel>
+      </Border>
+      <TextBlock Text="Editing, replacement, removal, size details, and verification will appear here in later phases. Importing will never start an installer automatically." Style="{StaticResource Caption}" Margin="0,20,0,0" />
+    </StackPanel>
+  </Border>
+</StackPanel>
+</UserControl>

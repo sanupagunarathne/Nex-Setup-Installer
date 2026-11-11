@@ -1,0 +1,21 @@
+<UserControl x:Class="NexInstaller.App.Views.FontLibraryView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel><TextBlock Text="Type, organized." Style="{StaticResource SectionTitle}" /><TextBlock Text="TTF · OTF · Licensed local files" Style="{StaticResource Caption}" Margin="0,8,0,0" /></StackPanel>
+      <Button Grid.Column="1" Content="Import fonts" IsEnabled="False" Style="{StaticResource PrimaryButton}" />
+    </Grid>
+  </Border>
+  <Border Style="{StaticResource Card}" MinHeight="340">
+    <StackPanel MaxWidth="480" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <TextBlock Text="Aa" FontSize="72" Foreground="{StaticResource AccentBrush}" TextAlignment="Center" />
+      <TextBlock Text="A home for your font library" Style="{StaticResource SectionTitle}" TextAlignment="Center" Margin="0,12,0,0" />
+      <TextBlock Text="Font imports, duplicate detection, previews, and installation results are planned for Phase 3 and Phase 4. This is the font workspace layout." Style="{StaticResource SecondaryText}" TextAlignment="Center" Margin="0,12,0,0" />
+      <TextBlock Text="Install only fonts whose licenses allow use on the destination device." Style="{StaticResource Caption}" TextAlignment="Center" Margin="0,24,0,0" />
+    </StackPanel>
+  </Border>
+</StackPanel>
+</UserControl>

@@ -1,0 +1,20 @@
+<UserControl x:Class="NexInstaller.App.Views.PresetsView"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
+    <Grid>
+      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
+      <StackPanel><TextBlock Text="Repeatable setups" Style="{StaticResource SectionTitle}" /><TextBlock Text="Software and fonts, grouped for the way you work." Style="{StaticResource SecondaryText}" Margin="0,8,20,0" /></StackPanel>
+      <Button Grid.Column="1" Content="Create preset" IsEnabled="False" Style="{StaticResource PrimaryButton}" />
+    </Grid>
+  </Border>
+  <Border Style="{StaticResource Card}" MinHeight="320">
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="440">
+      <TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" FontSize="38" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" />
+      <TextBlock Text="Your next setup, ready to save" Style="{StaticResource SectionTitle}" TextAlignment="Center" Margin="0,20,0,12" />
+      <TextBlock Text="Preset creation, renaming, software and font selection, JSON persistence, and execution are planned for Phase 5." Style="{StaticResource SecondaryText}" TextAlignment="Center" />
+    </StackPanel>
+  </Border>
+</StackPanel>
+</UserControl>
