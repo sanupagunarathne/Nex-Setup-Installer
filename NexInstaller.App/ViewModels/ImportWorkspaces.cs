@@ -43,7 +43,7 @@ public sealed class PackageManagerViewModel : ImportWorkspace
     private readonly ICategoryService? categories;
     private readonly IImportDialogs? dialogs;
     public PackageManagerViewModel(ShellViewModel shell, IPackageImportService? importer, ICategoryService? categories, IImportDialogs? dialogs)
-        : base("Package Manager", "Import local installers, verify hashes, and manage categories.")
+        : base("Add files", "Save setup files to your offline library.")
     {
         this.shell = shell; this.importer = importer; this.categories = categories; this.dialogs = dialogs;
         ImportCommand = new(ImportAsync, ex => Status = ex.Message);
@@ -129,7 +129,7 @@ public sealed class FontLibraryViewModel : ImportWorkspace
     private readonly IFontImportService? importer;
     private readonly IImportDialogs? dialogs;
     public FontLibraryViewModel(ShellViewModel shell, IFontImportService? importer, IImportDialogs? dialogs)
-        : base("Font Library", "Import licensed TTF/OTF files into your offline library.")
+        : base("Fonts", "Add licensed fonts and choose the ones this laptop needs.")
     {
         this.shell = shell; this.importer = importer; this.dialogs = dialogs;
         BrowseFilesCommand = new(() => ImportChosen(false), ex => Status = ex.Message);

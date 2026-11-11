@@ -35,6 +35,9 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private string lastRefreshed = "Not scanned";
 
     public IReadOnlyList<NavigationItemViewModel> NavigationItems { get; }
+    public bool IsHome => navigation.CurrentPage == PageId.Dashboard;
+    public RelayCommand OpenAppsCommand { get; }
+    public RelayCommand OpenFontsCommand { get; }
     public PageViewModel CurrentPage => pages[navigation.CurrentPage];
     public LoadedConfiguration Configuration { get; }
     public string LibraryRoot => Configuration.Paths.Root;
@@ -80,17 +83,19 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         };
         NavigationItems =
         [
-            new(PageId.Dashboard, "Dashboard", "\uE80F", navigation.Navigate),
-            new(PageId.SoftwareLibrary, "Software Library", "\uE7F4", navigation.Navigate),
-            new(PageId.FontLibrary, "Font Library", "\uE8D2", navigation.Navigate),
-            new(PageId.Presets, "Installation Presets", "\uE8F1", navigation.Navigate),
-            new(PageId.PackageManager, "Package Manager", "\uE7B8", navigation.Navigate),
-            new(PageId.History, "Installation History", "\uE81C", navigation.Navigate),
+            new(PageId.Dashboard, "Home", "\uE80F", navigation.Navigate),
+            new(PageId.SoftwareLibrary, "Apps", "\uE7F4", navigation.Navigate),
+            new(PageId.FontLibrary, "Fonts", "\uE8D2", navigation.Navigate),
+            new(PageId.Presets, "Saved setups", "\uE8F1", navigation.Navigate),
+            new(PageId.PackageManager, "Add files", "\uE7B8", navigation.Navigate),
+            new(PageId.History, "Past installs", "\uE81C", navigation.Navigate),
             new(PageId.Settings, "Settings", "\uE713", navigation.Navigate)
         ];
         navigation.PropertyChanged += OnNavigationChanged;
         UpdateNavigation();
         RefreshCommand = new(RefreshAsync, ReportRefreshError);
+        OpenAppsCommand = new(() => navigation.Navigate(PageId.SoftwareLibrary));
+        OpenFontsCommand = new(() => navigation.Navigate(PageId.FontLibrary));
         OpenPackagesCommand = new(() => navigation.Navigate(PageId.PackageManager));
         OpenPresetsCommand = new(() => navigation.Navigate(PageId.Presets));
     }
@@ -147,6 +152,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     {
         UpdateNavigation();
         Raise(nameof(CurrentPage));
+        Raise(nameof(IsHome));
     }
 
     private void UpdateNavigation()
