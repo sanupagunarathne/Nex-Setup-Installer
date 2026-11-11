@@ -19,9 +19,9 @@
   <WrapPanel><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
       <StackPanel>
         <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentBrush}" FontSize="20" Margin="0,0,0,20" />
-        <TextBlock Text="PACKAGE MANIFESTS" Style="{StaticResource Eyebrow}" />
-        <TextBlock Text="{Binding Shell.ManifestCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
-        <TextBlock Text="JSON files in manifests" Style="{StaticResource Caption}" />
+        <TextBlock Text="AVAILABLE SOFTWARE" Style="{StaticResource Eyebrow}" />
+        <TextBlock Text="{Binding Shell.AvailablePackageCount}" FontSize="36" FontWeight="SemiBold" Margin="0,6,0,6" />
+        <TextBlock Text="Validated metadata and paths" Style="{StaticResource Caption}" />
       </StackPanel>
     </Border><Border Style="{StaticResource Card}" Width="204" Margin="0,0,12,12" Padding="20">
       <StackPanel>
@@ -45,7 +45,7 @@
         <TextBlock Text="JSON files in history" Style="{StaticResource Caption}" />
       </StackPanel>
     </Border></WrapPanel>
-  <TextBlock Text="File counts only. Package availability and manifest contents will be validated in Phase 2." Style="{StaticResource Caption}" Margin="0,0,0,24" />
+  <TextBlock Text="Software count excludes invalid, missing, duplicate-ID, and incompatible packages. Fonts, presets, and sessions show file counts. Hashes are not yet verified." Style="{StaticResource Caption}" Margin="0,0,0,24" />
   <Grid Margin="0,0,0,24">
     <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="16" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
     <Border Style="{StaticResource Card}">

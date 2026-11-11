@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using NexInstaller.Core.Library;
+using NexInstaller.Core.Packages;
 using NexInstaller.Core.Logging;
 using NexInstaller.Core.Navigation;
 using NexInstaller.Infrastructure.Configuration;
@@ -11,6 +12,9 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private readonly NavigationState navigation;
     private readonly ILibrarySnapshotService inventory;
     private readonly ILocalLog log;
+    private readonly IPackageCatalogService catalogService;
+    private PackageCatalog? catalog;
+    public SoftwareLibraryViewModel SoftwareLibrary { get; } = new();
     private readonly Dictionary<PageId, PageViewModel> pages;
     private readonly CancellationTokenSource lifetime = new();
     private LibrarySnapshot? snapshot;
@@ -28,7 +32,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public string LibraryStatus { get => libraryStatus; private set { libraryStatus = value; Raise(); } }
     public string LastRefreshed { get => lastRefreshed; private set { lastRefreshed = value; Raise(); } }
     public bool IsBusy { get => busy; private set { busy = value; Raise(); } }
-    public string ManifestCount => snapshot?.ManifestCount.ToString("N0") ?? "—";
+    public string AvailablePackageCount => catalog?.AvailableCount.ToString("N0") ?? "—";
     public string FontCount => snapshot?.FontFileCount.ToString("N0") ?? "—";
     public string PresetCount => snapshot?.PresetFileCount.ToString("N0") ?? "—";
     public string SessionCount => snapshot?.SessionReportCount.ToString("N0") ?? "—";
@@ -36,16 +40,17 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService)
     {
         this.navigation = navigation;
         this.inventory = inventory;
         this.log = log;
+        this.catalogService = catalogService;
         Configuration = configuration;
         pages = new()
         {
             [PageId.Dashboard] = new DashboardViewModel(this),
-            [PageId.SoftwareLibrary] = new SoftwareLibraryViewModel(),
+            [PageId.SoftwareLibrary] = SoftwareLibrary,
             [PageId.FontLibrary] = new FontLibraryViewModel(),
             [PageId.Presets] = new PresetsViewModel(),
             [PageId.PackageManager] = new PackageManagerViewModel(),
@@ -76,12 +81,17 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         LibraryStatus = "Reading local library…";
         try
         {
-            snapshot = await inventory.ReadAsync(lifetime.Token);
-            LibraryStatus = snapshot.Warnings.Count == 0
-                ? "Library folders read successfully. Inventory is based on files on disk."
-                : string.Join(Environment.NewLine, snapshot.Warnings);
+            var newSnapshot = await inventory.ReadAsync(lifetime.Token);
+            var newCatalog = await catalogService.DiscoverAsync(lifetime.Token);
+            snapshot = newSnapshot;
+            catalog = newCatalog;
+            SoftwareLibrary.Load(catalog);
+            var notices = snapshot.Warnings.Concat(catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}")).ToArray();
+            LibraryStatus = notices.Length == 0
+                ? $"Library folders read successfully. {catalog.AvailableCount} available of {catalog.Packages.Count} discovered software packages. Hashes are not yet verified."
+                : string.Join(Environment.NewLine, notices);
             LastRefreshed = DateTime.Now.ToString("g");
-            foreach (var property in new[] { nameof(ManifestCount), nameof(FontCount), nameof(PresetCount), nameof(SessionCount) })
+            foreach (var property in new[] { nameof(AvailablePackageCount), nameof(FontCount), nameof(PresetCount), nameof(SessionCount) })
                 Raise(property);
             log.TryWrite("library.scan", $"Read library inventory with {snapshot.Warnings.Count} warnings.");
             Raise(nameof(LogDirectory));
@@ -93,6 +103,9 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
 
     private void ReportRefreshError(Exception ex)
     {
+        catalog = null;
+        SoftwareLibrary.Load(new PackageCatalog([], [new CatalogIssue("library", "Refresh failed. Try refreshing again.")]));
+        Raise(nameof(AvailablePackageCount));
         LibraryStatus = "The library could not be read. Check its location and permissions, then refresh.";
         log.TryWrite("library.scan.failed", "Local inventory scan failed.", ex);
         Raise(nameof(LogDirectory));

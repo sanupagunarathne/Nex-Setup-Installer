@@ -24,7 +24,7 @@
   <Border Style="{StaticResource Card}">
     <StackPanel>
       <TextBlock Text="NEX Installer" Style="{StaticResource SectionTitle}" />
-      <TextBlock Text="Version 0.1.0 · Phase 1 foundation · Windows 10/11 x64" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
+      <TextBlock Text="Version 0.2.0 · Phase 2 package library · Windows 10/11 x64" Style="{StaticResource SecondaryText}" Margin="0,12,0,0" />
       <TextBlock Text="The application runs with the current user's permissions. Installation, UAC requests, and restart reporting will be added with the installation engine. Windows will never be restarted automatically." Style="{StaticResource Caption}" Margin="0,12,0,0" />
     </StackPanel>
   </Border>

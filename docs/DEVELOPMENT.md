@@ -1,3 +1,5 @@
+> Historical Phase 1 record. Current scope and validation: [Phase 2](PHASE-2.md).
+
 # Phase 1 foundation
 
 ## Implemented

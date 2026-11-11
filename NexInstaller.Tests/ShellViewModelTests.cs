@@ -1,9 +1,12 @@
 using NexInstaller.App.ViewModels;
 using NexInstaller.Core.Configuration;
 using NexInstaller.Core.Library;
+using NexInstaller.Core.Packages;
 using NexInstaller.Core.Logging;
 using NexInstaller.Core.Navigation;
 using NexInstaller.Infrastructure.Configuration;
+using NexInstaller.Infrastructure.Library;
+using NexInstaller.Infrastructure.Packages;
 
 namespace NexInstaller.Tests;
 
@@ -28,9 +31,9 @@ public sealed class ShellViewModelTests
     public async Task RefreshDisplaysActualServiceResults()
     {
         using var shell = CreateShell(new FakeInventory());
-        Assert.Equal("—", shell.ManifestCount);
+        Assert.Equal("—", shell.AvailablePackageCount);
         await shell.RefreshAsync();
-        Assert.Equal("3", shell.ManifestCount);
+        Assert.Equal("0", shell.AvailablePackageCount);
         Assert.Equal("7", shell.FontCount);
         Assert.Equal("2", shell.PresetCount);
         Assert.Equal("1", shell.SessionCount);
@@ -52,9 +55,30 @@ public sealed class ShellViewModelTests
         Assert.Equal("7", shell.FontCount);
     }
 
+    [Fact]
+    public async Task DashboardAndSelectionFollowPayloadRemovalOnRefresh()
+    {
+        using var directory = new TemporaryDirectory();
+        var payload = directory.Write("packages/editor/setup.exe", "dummy, never executed");
+        directory.Write("manifests/editor.json", ManifestTests.ValidJson());
+        var paths = new LibraryPaths(directory.Root, ".");
+        using var shell = new ShellViewModel(new NavigationState(), new FileSystemLibrarySnapshotService(paths),
+            new LoadedConfiguration(paths, "nexinstaller.json", null), new FakeLog(),
+            new FileSystemPackageCatalogService(paths, new JsonPackageManifestReader(), PackageArchitecture.X64));
+        await shell.RefreshAsync();
+        Assert.Equal("1", shell.AvailablePackageCount);
+        shell.SoftwareLibrary.SelectVisibleCommand.Execute(null);
+        Assert.Equal(1, shell.SoftwareLibrary.SelectedCount);
+        File.Delete(payload);
+        await shell.RefreshAsync();
+        Assert.Equal("0", shell.AvailablePackageCount);
+        Assert.Equal(0, shell.SoftwareLibrary.SelectedCount);
+        Assert.False(Assert.Single(shell.SoftwareLibrary.Packages).IsAvailable);
+    }
+
     private static ShellViewModel CreateShell(ILibrarySnapshotService inventory) => new(
         new NavigationState(), inventory,
-        new LoadedConfiguration(new LibraryPaths(Path.GetTempPath(), "package-library"), "nexinstaller.json", null), new FakeLog());
+        new LoadedConfiguration(new LibraryPaths(Path.GetTempPath(), "package-library"), "nexinstaller.json", null), new FakeLog(), new FakeCatalog());
 
     private sealed class FakeInventory : ILibrarySnapshotService
     {
@@ -62,6 +86,12 @@ public sealed class ShellViewModelTests
         public Task<LibrarySnapshot> ReadAsync(CancellationToken cancellationToken = default) => Fail
             ? Task.FromException<LibrarySnapshot>(new IOException("simulated removable drive failure"))
             : Task.FromResult(new LibrarySnapshot(3, 7, 2, 1, []));
+    }
+
+    private sealed class FakeCatalog : IPackageCatalogService
+    {
+        public Task<PackageCatalog> DiscoverAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new PackageCatalog([], []));
     }
 
     private sealed class FakeLog : ILocalLog

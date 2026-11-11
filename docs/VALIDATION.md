@@ -1,3 +1,5 @@
+> Historical Phase 1 record. Current scope and validation: [Phase 2](PHASE-2.md).
+
 # Phase 1 validation record
 
 Validated on 2026-11-11 in Linux x64 (Debian 13) using .NET SDK 10.0.100.
