@@ -1,0 +1,32 @@
+# Build, IDE, machine-specific and publish output
+**/bin/
+**/obj/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+artifacts/
+publish/
+TestResults/
+*.user
+*.suo
+# Local logs, configuration, temporary and customer data
+logs/
+*.log
+*.jsonl
+*.tmp
+*.bak
+.env*
+nexinstaller.local.json
+customer-data/
+work/
+# Real offline library content is populated separately; keep directory markers
+package-library/**
+!package-library/**/
+!package-library/**/.gitkeep
+*.exe
+*.msi
+*.msix
+*.zip
+*.ttf
+*.otf
+.DS_Store
