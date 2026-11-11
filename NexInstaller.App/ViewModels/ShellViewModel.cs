@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using NexInstaller.Core.Presets;
+using NexInstaller.Core.History;
 using NexInstaller.Core.Installation;
 using NexInstaller.Core.Importing;
 using NexInstaller.Core.Library;
@@ -16,6 +18,8 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private readonly ILocalLog log;
     private readonly IPackageCatalogService catalogService;
     private PackageCatalog? catalog;
+    public PresetsViewModel Presets { get; }
+    public HistoryViewModel History { get; }
     public InstallationQueueViewModel InstallationQueue { get; }
     public PackageManagerViewModel PackageManager { get; }
     public FontLibraryViewModel FontLibrary { get; }
@@ -23,6 +27,8 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     private readonly Dictionary<PageId, PageViewModel> pages;
     private readonly CancellationTokenSource lifetime = new();
     private LibrarySnapshot? snapshot;
+    private readonly bool presetsAvailable;
+    private readonly bool historyAvailable;
     private bool busy;
     private bool refreshAgain;
     private string libraryStatus = "Library has not been scanned yet.";
@@ -40,20 +46,25 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public bool IsBusy { get => busy; private set { busy = value; Raise(); } }
     public string AvailablePackageCount => catalog?.AvailableCount.ToString("N0") ?? "—";
     public string FontCount => snapshot?.FontFileCount.ToString("N0") ?? "—";
-    public string PresetCount => snapshot?.PresetFileCount.ToString("N0") ?? "—";
-    public string SessionCount => snapshot?.SessionReportCount.ToString("N0") ?? "—";
+    public string PresetCount => presetsAvailable && Presets.IsLoaded ? Presets.Presets.Count.ToString("N0") : "—";
+    public string SessionCount => historyAvailable && History.IsLoaded ? History.RecentCount.ToString("N0") : "—";
     public AsyncCommand RefreshCommand { get; }
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null, IPresetService? presetService = null, IHistoryService? historyService = null, IPresetsHistoryDialogs? presetsDialogs = null)
     {
         this.navigation = navigation;
         this.inventory = inventory;
         this.log = log;
         this.catalogService = catalogService;
         Configuration = configuration;
-        InstallationQueue = new(installationEngine);
+        InstallationQueue = new(installationEngine) { AfterRunAsync = RefreshAsync };
+        presetsAvailable = presetService is not null; historyAvailable = historyService is not null;
+        Presets = new(this, presetService, presetsDialogs);
+        History = new(historyService, presetsDialogs);
+        Presets.Presets.CollectionChanged += (_, _) => Raise(nameof(PresetCount));
+        History.PropertyChanged += (_, args) => { if (args.PropertyName == nameof(HistoryViewModel.RecentCount)) Raise(nameof(SessionCount)); };
         SoftwareLibrary.InstallationQueue = InstallationQueue;
         PackageManager = new(this, packageImports, categories, dialogs);
         FontLibrary = new(this, fontImports, dialogs);
@@ -62,9 +73,9 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
             [PageId.Dashboard] = new DashboardViewModel(this),
             [PageId.SoftwareLibrary] = SoftwareLibrary,
             [PageId.FontLibrary] = FontLibrary,
-            [PageId.Presets] = new PresetsViewModel(),
+            [PageId.Presets] = Presets,
             [PageId.PackageManager] = PackageManager,
-            [PageId.History] = new HistoryViewModel(),
+            [PageId.History] = History,
             [PageId.Settings] = new SettingsViewModel(this)
         };
         NavigationItems =
@@ -102,7 +113,9 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
                 SoftwareLibrary.Load(catalog);
                 await PackageManager.ReloadCategoriesAsync();
                 await FontLibrary.ReloadAsync();
-                var notices = snapshot.Warnings.Concat(catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}")).ToArray();
+                await Presets.ReloadAsync();
+                await History.ReloadAsync();
+                var notices = snapshot.Warnings.Concat(catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}")).Concat(Presets.Diagnostics).Concat(History.Diagnostics).ToArray();
                 LibraryStatus = notices.Length == 0
                     ? $"Library folders read successfully. {catalog.AvailableCount} available of {catalog.Packages.Count} discovered software packages. Hashes are not yet verified."
                     : string.Join(Environment.NewLine, notices);

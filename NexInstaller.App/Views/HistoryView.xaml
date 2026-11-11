@@ -1,21 +1,17 @@
-<UserControl x:Class="NexInstaller.App.Views.HistoryView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-<StackPanel>
-  <Border Style="{StaticResource Card}" Margin="0,0,0,20">
-    <Grid>
-      <Grid.ColumnDefinitions><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-      <TextBlock Text="Local installation sessions" Style="{StaticResource SectionTitle}" VerticalAlignment="Center" />
-      <Button Grid.Column="1" Content="Export report" IsEnabled="False" />
-    </Grid>
-  </Border>
-  <Border Style="{StaticResource Card}" MinHeight="340">
-    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="440">
-      <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="38" Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center" />
-      <TextBlock Text="Every installation, accounted for" Style="{StaticResource SectionTitle}" TextAlignment="Center" Margin="0,20,0,12" />
-      <TextBlock Text="Session timestamps, package results, exit codes, failures, restart requirements, and exportable reports are planned for Phase 5." Style="{StaticResource SecondaryText}" TextAlignment="Center" />
-      <TextBlock Text="No customer identity information is needed." Style="{StaticResource Caption}" TextAlignment="Center" Margin="0,20,0,0" />
-    </StackPanel>
-  </Border>
-</StackPanel>
+<UserControl x:Class="NexInstaller.App.Views.HistoryView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel IsEnabled="{Binding IsIdle}">
+   <TextBlock Text="Recorded installation sessions" Style="{StaticResource SectionTitle}"/>
+   <TextBlock Text="Search by session ID, package ID/name, outcome, exit code, or message" Style="{StaticResource Caption}" Margin="0,12,0,6"/>
+   <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="History search"/>
+   <WrapPanel Margin="0,12,0,16"><Button Content="Refresh history" Command="{Binding RefreshCommand}" Margin="0,0,12,8"/><Button Content="Export selected as JSON" Command="{Binding ExportJsonCommand}" Margin="0,0,12,8"/><Button Content="Export selected as CSV" Command="{Binding ExportCsvCommand}" Margin="0,0,0,8"/></WrapPanel>
+   <ListBox ItemsSource="{Binding Sessions}" SelectedItem="{Binding SelectedSession}" DisplayMemberPath="Summary" Height="220" AutomationProperties.Name="Installation sessions"/>
+   <TextBlock Text="Incomplete sessions can be active or interrupted. Finished means the queue ended; inspect each item's outcome. No customer identity data is needed." Style="{StaticResource Caption}" Margin="0,12,0,0"/>
+  </StackPanel></Border>
+  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
+   <TextBlock Text="Session results" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+   <TextBox Text="{Binding Details, Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" Height="340" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Session details"/>
+  </StackPanel></Border>
+  <Border Style="{StaticResource Card}"><StackPanel><ProgressBar IsIndeterminate="True" Height="4" Foreground="{StaticResource AccentBrush}" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"/><TextBlock Text="{Binding Status}" Style="{StaticResource SecondaryText}" Margin="0,12,0,0"/></StackPanel></Border>
+ </StackPanel>
 </UserControl>

@@ -33,3 +33,8 @@ package-library/**
 
 # Technician-verified local unattended profiles; keep only schemas/examples in Git
 installation-profiles.json
+
+# Private installation report exports (schemas and safe examples remain tracked)
+reports/
+nex-installation-report*.json
+nex-installation-report*.csv

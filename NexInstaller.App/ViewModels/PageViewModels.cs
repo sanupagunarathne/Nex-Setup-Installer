@@ -11,16 +11,6 @@ public sealed class DashboardViewModel(ShellViewModel shell) : PageViewModel("Da
     public ShellViewModel Shell { get; } = shell;
 }
 
-public sealed class PresetsViewModel : PageViewModel
-{
-    public PresetsViewModel() : base("Installation Presets", "Bring your most common workstation setups together.") { }
-}
-
-public sealed class HistoryViewModel : PageViewModel
-{
-    public HistoryViewModel() : base("Installation History", "Review local installation sessions and their outcomes.") { }
-}
-
 public sealed class SettingsViewModel(ShellViewModel shell) : PageViewModel("Settings", "Local paths, diagnostics, and application information.")
 {
     public ShellViewModel Shell { get; } = shell;
