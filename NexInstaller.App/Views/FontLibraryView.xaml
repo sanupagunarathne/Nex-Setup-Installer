@@ -2,18 +2,26 @@
 <StackPanel>
  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel IsEnabled="{Binding IsIdle}">
   <TextBlock Text="Add licensed fonts" Style="{StaticResource SectionTitle}"/>
+  <TextBlock Text="Save in library folder (optional)" Margin="0,16,0,6"/>
+  <ComboBox ItemsSource="{Binding Folders}" Text="{Binding Folder, UpdateSourceTrigger=PropertyChanged}" IsEditable="True" IsTextSearchEnabled="False" AutomationProperties.Name="Font library folder"/>
+  <TextBlock Text="Type a new folder name or choose an existing one. Leave blank for unfiled fonts. Then add font files or import a source folder." Style="{StaticResource Caption}" Margin="0,6,0,0"/>
   <StackPanel Orientation="Horizontal" Margin="0,16,0,16"><CheckBox IsChecked="{Binding LicenseConfirmed}" AutomationProperties.Name="Confirm font licenses"/><TextBlock Text="I confirm the font licenses permit use on destination devices." Margin="10,0,0,0"/></StackPanel>
   <WrapPanel><Button Content="Add font files" Command="{Binding BrowseFilesCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,12,8"/><Button Content="Add a font folder" Command="{Binding BrowseFolderCommand}" Margin="0,0,0,8"/></WrapPanel>
+  <TextBlock Text="Choose files or a source folder first. If needed, you will be asked to confirm font licenses before copying." Style="{StaticResource Caption}" Margin="0,0,0,8"/>
+  <TextBlock Text="{Binding Status}" Style="{StaticResource SecondaryText}" Margin="0,0,0,8"/>
   <TextBlock Text="TTF / OTF · Recursive folder imports · Duplicate detection · Current-user installation available through the queue" Style="{StaticResource Caption}"/>
  </StackPanel></Border>
  <Border Style="{StaticResource Card}" Margin="0,0,0,16"><StackPanel>
   <TextBlock Text="Local font library" Style="{StaticResource SectionTitle}" Margin="0,0,0,12"/>
+  <ComboBox ItemsSource="{Binding FolderFilters}" SelectedItem="{Binding SelectedFolder}" DisplayMemberPath="Label" Margin="0,0,0,12" AutomationProperties.Name="Font folder filter"/>
+  <Button Content="Add all fonts shown to install list" Command="{Binding QueueFolderCommand}" HorizontalAlignment="Left" Margin="0,0,0,12"/>
   <ListBox ItemsSource="{Binding Fonts}" SelectedItem="{Binding SelectedFont}" DisplayMemberPath="Name" Height="220" SelectionChanged="PreviewChanged" AutomationProperties.Name="Font library"/>
   <TextBlock x:Name="PreviewText" Text="Aa Bb Cc · 0123456789" FontSize="32" Margin="0,16,0,8"/>
   <TextBlock x:Name="PreviewNotice" Text="Select a font to preview it where WPF supports it." Style="{StaticResource Caption}"/>
   <TextBlock Text="{Binding SelectedFont.Path}" Style="{StaticResource Caption}" Margin="0,8,0,0"/>
   <TextBlock Text="{Binding SelectedFont.Sha256}" Style="{StaticResource Caption}"/>
   <Button Content="Add selected font to install list" Command="{Binding QueueSelectedCommand}" Margin="0,12,0,0"/>
+  <Button Content="Delete selected font" Command="{Binding DeleteSelectedCommand}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
  </StackPanel></Border>
  <Border Style="{StaticResource Card}"><StackPanel>
   <ProgressBar IsIndeterminate="True" Height="4" Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}" Foreground="{StaticResource AccentBrush}"/>

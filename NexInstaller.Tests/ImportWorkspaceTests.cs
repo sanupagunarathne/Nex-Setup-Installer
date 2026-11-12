@@ -38,6 +38,33 @@ public sealed class ImportWorkspaceTests
         Assert.False(shell.PackageManager.IsBusy);
     }
     [Fact]
+    public async Task SavedFoldersReloadAndFontFolderQueuesOnlyItsContents()
+    {
+        using var library = new TemporaryDirectory(); using var source = new TemporaryDirectory(); using var shell = Shell(library.Root, true);
+        shell.PackageManager.SourcePath = source.Write("setup.exe", "dummy");
+        shell.PackageManager.PackageName = "Editor"; shell.PackageManager.Version = "1.0"; shell.PackageManager.Folder = "Adobe";
+        await shell.PackageManager.ImportAsync();
+        Assert.Contains("Adobe", shell.PackageManager.Folders);
+        Assert.Equal("Adobe", shell.PackageManager.Folder);
+        var fonts = new FontImportService(new LibraryStorage(new LibraryPaths(library.Root, ".")));
+        var bytes = new byte[28]; bytes[1] = 1; bytes[5] = 1;
+        var first = source.Write("one.ttf"); File.WriteAllBytes(first, bytes);
+        await fonts.ImportAsync([first], true, folder: "Brand fonts");
+        bytes[8] = 1; var second = source.Write("two.ttf"); File.WriteAllBytes(second, bytes);
+        await fonts.ImportAsync([second], true);
+        await shell.RefreshAsync();
+        var vm = shell.FontLibrary;
+        Assert.Contains("Brand fonts", vm.Folders);
+        vm.SelectedFolder = vm.FolderFilters.Single(option => option.Value == "Brand fonts");
+        Assert.Equal("one.ttf", Assert.Single(vm.Fonts).Name);
+        vm.QueueFolderCommand.Execute(null); Assert.Equal(0, shell.InstallationQueue.Count);
+        vm.LicenseConfirmed = true; vm.QueueFolderCommand.Execute(null);
+        var request = Assert.Single(shell.InstallationQueue.Items).Request;
+        Assert.StartsWith("fonts/folders/Brand fonts/", request.FontRelativePath!.Replace('\\', '/'));
+        await shell.RefreshAsync(); Assert.Equal("Brand fonts", vm.SelectedFolder.Value);
+        vm.FolderFilters.Clear(); vm.SelectedFolder = null!; Assert.Equal(2, vm.Fonts.Count);
+    }
+    [Fact]
     public async Task SourceChangeDuringCopyRollsBackPayloadAndManifest()
     {
         using var library = new TemporaryDirectory(); using var source = new TemporaryDirectory();

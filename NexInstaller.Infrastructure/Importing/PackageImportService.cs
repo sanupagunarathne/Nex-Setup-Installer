@@ -21,7 +21,9 @@ public sealed class PackageImportService(LibraryStorage storage) : IPackageImpor
         var files = folder ? LibraryStorage.Files(source) : [source];
         var entrySuffix = folder ? request.EntryPoint?.Replace('\\', '/') : Path.GetFileName(source);
         var id = "pkg-" + Guid.NewGuid().ToString("N");
-        var entry = PortablePackagePath.Normalize($"packages/{id}/{entrySuffix}");
+        var libraryFolder = LibraryFolder.Normalize(request.Folder);
+        var packageDirectory = libraryFolder.Length == 0 ? id : $"folders/{libraryFolder}/{id}";
+        var entry = PortablePackagePath.Normalize($"packages/{packageDirectory}/{entrySuffix}");
         var extension = Path.GetExtension(entry).ToLowerInvariant();
         if (extension is not (".exe" or ".msi")) throw new InvalidDataException("Select an EXE/MSI entry point inside the source folder.");
         var records = new List<PackageFile>();
@@ -30,10 +32,10 @@ public sealed class PackageImportService(LibraryStorage storage) : IPackageImpor
             token.ThrowIfCancellationRequested();
             var relative = Path.GetRelativePath(sourceRoot, file).Replace('\\', '/');
             progress?.Report("Hashing " + relative);
-            records.Add(new() { Path = PortablePackagePath.Normalize($"packages/{id}/{relative}"), Sha256 = LibraryStorage.Hash(file, token) });
+            records.Add(new() { Path = PortablePackagePath.Normalize($"packages/{packageDirectory}/{relative}"), Sha256 = LibraryStorage.Hash(file, token) });
         }
         var manifest = new PackageManifest { SchemaVersion = 1, Id = id, Name = request.Name, Version = request.Version,
-            Architecture = request.Architecture, Category = request.Category, Description = request.Description,
+            Architecture = request.Architecture, Category = request.Category, Description = request.Description, Folder = libraryFolder.Length == 0 ? null : libraryFolder,
             InstallerType = extension == ".msi" ? InstallerType.Msi : InstallerType.Exe, EntryPoint = entry,
             Files = records.ToArray(), InstallationMode = InstallationMode.Manual, RequiresAdministrator = request.RequiresAdministrator };
         var json = JsonSerializer.Serialize(manifest, LibraryStorage.Json);
@@ -42,9 +44,10 @@ public sealed class PackageImportService(LibraryStorage storage) : IPackageImpor
         using var gate = storage.BeginWrite();
         var existing = storage.ReadManifests();
         var fingerprint = Fingerprint(manifest);
-        if (existing.Any(item => Fingerprint(item.Manifest) == fingerprint)) return new(false, "Duplicate content: this package is already in the library.");
+        var duplicate = existing.FirstOrDefault(item => Fingerprint(item.Manifest) == fingerprint);
+        if (duplicate.Manifest is not null) return new(false, "Duplicate content: this package is already in the library.", duplicate.Manifest);
         var staging = Path.Combine(storage.Paths.Root, ".staging", id);
-        var destination = Path.Combine(storage.Paths.Packages, id);
+        var destination = Path.Combine(storage.Paths.Packages, packageDirectory);
         var committed = false;
         var moved = false;
         try
@@ -69,7 +72,7 @@ public sealed class PackageImportService(LibraryStorage storage) : IPackageImpor
                 if (!LibraryStorage.Hash(target, token).Equals(records[index].Sha256, StringComparison.OrdinalIgnoreCase))
                     throw new IOException("Source changed during import. No package was committed.");
             }
-            storage.CreateDirectory(storage.Paths.Packages);
+            storage.CreateDirectory(Path.GetDirectoryName(destination)!);
             storage.CreateDirectory(storage.Paths.Manifests);
             var stagedManifest = Path.Combine(storage.Paths.Manifests, id + ".tmp");
             try
@@ -92,7 +95,9 @@ public sealed class PackageImportService(LibraryStorage storage) : IPackageImpor
         }
     }
 
-    private static string Fingerprint(PackageManifest manifest) => string.Join("|", manifest.Files.Select(f => f.Sha256.ToUpperInvariant()).Order(StringComparer.Ordinal));
+    private static string Fingerprint(PackageManifest manifest) =>
+        manifest.Files.First(file => file.Path.Replace('\\', '/').Equals(manifest.EntryPoint.Replace('\\', '/'), StringComparison.OrdinalIgnoreCase)).Sha256.ToUpperInvariant() + ":" +
+        string.Join("|", manifest.Files.Select(f => f.Sha256.ToUpperInvariant()).Order(StringComparer.Ordinal));
 
     public Task<IReadOnlyList<VerificationResult>> VerifyAsync(IProgress<string>? progress = null, CancellationToken token = default) => Task.Run<IReadOnlyList<VerificationResult>>(() =>
     {

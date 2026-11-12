@@ -48,6 +48,7 @@ public partial class App : Application
             registrations.AddSingleton<IInstallationJournal>(_ => new JsonInstallationJournal(applicationDirectory, Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)));
             registrations.AddSingleton<IInstallationEngine, InstallationEngine>();
             registrations.AddSingleton<LibraryStorage>();
+            registrations.AddSingleton<ILibraryRemovalService, LibraryRemovalService>();
             registrations.AddSingleton<IPackageImportService, PackageImportService>();
             registrations.AddSingleton<IFontImportService, FontImportService>();
             registrations.AddSingleton<ICategoryService, CategoryService>();

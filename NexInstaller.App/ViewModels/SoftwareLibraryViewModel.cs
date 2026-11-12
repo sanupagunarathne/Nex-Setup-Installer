@@ -12,6 +12,7 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
     public string Name => Package.Manifest.Name;
     public string Version => Package.Manifest.Version;
     public string Category => Package.Manifest.Category;
+    public string Folder => Package.Manifest.Folder ?? "";
     public string Architecture => Package.Manifest.Architecture.ToString();
     public bool IsAvailable => Package.IsAvailable;
     public string Availability => IsAvailable ? "Ready to select" : "Needs attention · open app details";
@@ -36,6 +37,9 @@ public sealed class PackageRowViewModel(CatalogPackage package, Action selection
 public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for this laptop", "Tick the apps you need, then add them to your install list.")
 {
     public RelayCommand? OpenAddFilesCommand { get; set; }
+    public AsyncCommand? DeleteSelectedCommand { get; set; }
+    private string managementStatus = "";
+    public string ManagementStatus { get => managementStatus; set { managementStatus = value; Raise(); } }
     public string EmptyActionLabel => all.Count == 0 ? "Add your first app" : "Add another app";
     public string EmptyHeading => all.Count == 0 ? "Your app library is empty" : "No apps match your filters";
     public string EmptyDescription => all.Count == 0 ? "Add a setup file to start building your offline library." : "Try another search or group, or check the computer type filter.";
@@ -49,6 +53,9 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
     private string issues = "Refresh the library to discover packages.";
     public ObservableCollection<PackageRowViewModel> Packages { get; } = [];
     public ObservableCollection<CategoryOption> Categories { get; } = [new("All groups", null)];
+    public ObservableCollection<CategoryOption> Folders { get; } = [new("All folders", null), new("Unfiled apps", "")];
+    private CategoryOption selectedFolder = new("All folders", null);
+    public CategoryOption SelectedFolder { get => selectedFolder; set { selectedFolder = value ?? new("All folders", null); Raise(); Filter(); } }
     public IReadOnlyList<string> Architectures { get; } = ["All computer types", "Any", "X86", "X64", "Arm64"];
     public string Search { get => search; set { search = value ?? ""; Raise(); Filter(); } }
     public string SelectedArchitecture { get => architecture; set { architecture = value ?? "All computer types"; Raise(); Filter(); } }
@@ -79,6 +86,11 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
         foreach (var name in catalog.Categories) Categories.Add(new(name, name));
         category = Categories.FirstOrDefault(option => string.Equals(option.Value, previousCategory, StringComparison.OrdinalIgnoreCase)) ?? Categories[0];
         Raise(nameof(SelectedCategory));
+        var previousFolder = SelectedFolder.Value;
+        Folders.Clear(); Folders.Add(new("All folders", null)); Folders.Add(new("Unfiled apps", ""));
+        foreach (var name in all.Select(row => row.Folder).Where(name => name.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) Folders.Add(new(name, name));
+        selectedFolder = Folders.FirstOrDefault(option => option.Value == previousFolder) ?? Folders[0];
+        Raise(nameof(SelectedFolder));
         Issues = catalog.Issues.Count == 0 ? "No manifest parsing errors. Unavailable packages show their reasons in details."
             : string.Join("\n", catalog.Issues.Select(issue => $"{issue.ManifestPath}: {issue.Message}"));
         Filter();
@@ -89,6 +101,7 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
     {
         var query = Search.Trim();
         var visible = all.Where(row =>
+            (SelectedFolder.Value is null || string.Equals(row.Folder, SelectedFolder.Value, StringComparison.OrdinalIgnoreCase)) &&
             (SelectedCategory.Value is null || string.Equals(row.Category, SelectedCategory.Value, StringComparison.OrdinalIgnoreCase)) &&
             (SelectedArchitecture == "All computer types" || row.Architecture == SelectedArchitecture) &&
             (query.Length == 0 || $"{row.Name} {row.Version} {row.Package.Manifest.Id} {row.Package.Manifest.Description}".Contains(query, StringComparison.OrdinalIgnoreCase))).ToArray();

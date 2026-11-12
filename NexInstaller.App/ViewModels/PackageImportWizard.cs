@@ -46,6 +46,7 @@ public sealed partial class PackageManagerViewModel
             }
             else if (Step == 1)
             {
+                NexInstaller.Core.Importing.LibraryFolder.Normalize(Folder);
                 if (IsCreatingGroup) throw new InvalidOperationException("Create the new group or cancel it before reviewing this app.");
                 if (string.IsNullOrWhiteSpace(PackageName) || string.IsNullOrWhiteSpace(Version) || string.IsNullOrWhiteSpace(Category))
                     throw new InvalidOperationException("Enter the app name and version, and choose a group before reviewing.");
@@ -57,7 +58,7 @@ public sealed partial class PackageManagerViewModel
     public RelayCommand BackCommand => new(() => { if (!IsBusy && Step > 0) Step--; });
     public RelayCommand CancelCreateGroupCommand => new(() => { IsCreatingGroup = false; SelectCurrentGroup(); });
     public AsyncCommand CreateImportGroupCommand => new(CreateImportGroupAsync, ex => Status = ex.Message);
-    public string ReviewText => $"App: {PackageName}\nVersion: {Version}\nGroup: {Category}\nComputer type: {Architecture}\nWindows administrator permission: {(RequiresAdministrator ? "Required" : "Not declared as required")}\nSetup mode: Normal setup windows (manual)\n\nSource: {SourcePath}\n" +
+    public string ReviewText => $"App: {PackageName}\nVersion: {Version}\nGroup: {Category}\nLibrary folder: {(string.IsNullOrWhiteSpace(Folder) ? "Unfiled apps" : Folder)}\nComputer type: {Architecture}\nWindows administrator permission: {(RequiresAdministrator ? "Required" : "Not declared as required")}\nSetup mode: Normal setup windows (manual)\n\nSource: {SourcePath}\n" +
         (IsFolderSource ? $"Setup file inside folder: {EntryPoint}\nAll files in this folder will be copied.\n" : "") +
         (string.IsNullOrWhiteSpace(Description) ? "" : $"\nNote: {Description}\n") + "\nFiles will be copied and checked for changes. Nothing is installed by saving.";
     private void RebuildGroups(IEnumerable<string> existing)

@@ -45,6 +45,11 @@
       "minLength": 1,
       "maxLength": 80
     },
+    "folder": {
+      "type": ["string", "null"],
+      "minLength": 1,
+      "maxLength": 80
+    },
     "description": {
       "type": [
         "string",
