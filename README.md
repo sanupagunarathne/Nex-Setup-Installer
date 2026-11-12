@@ -106,14 +106,8 @@ See [portable deployment](docs/PORTABLE.md) and
 The linked repository is `sanupagunarathne/Nex-Setup-Installer`. Completed feature
 branches are validated locally, committed separately, merged into `dev` with
 `--no-ff`, and published to GitHub when authorized. Keep feature and investigation
-branches. Current work is on GitHub's `dev`, not its default `main` branch.
-
-Local `main` contains the original local initialization. GitHub `main` contains
-its independently created initial README commit. These histories remain separate;
-this work does not rewrite either branch or merge a release into `main`. A future
-explicitly authorized stable milestone must reconcile them without force-pushing.
-Do not rewrite history, add other remotes, or merge `dev` into `main` without
-explicit instruction.
+branches. Stable milestones are merged into the default `main` branch without
+rewriting either branch's history.
 
 Installer binaries, fonts, logs, local caches, and customer data are ignored.
 Populate the real offline library separately; commit only safe examples,
