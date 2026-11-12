@@ -60,6 +60,15 @@ public sealed class JsonPackageManifestReader : IPackageManifestReader
         CheckText(m.Name, 160, "name", errors);
         CheckText(m.Version, 80, "version", errors);
         CheckText(m.Category, 80, "category", errors);
+        if (m.Folder is not null)
+        {
+            try
+            {
+                if (NexInstaller.Core.Importing.LibraryFolder.Normalize(m.Folder) != m.Folder || m.Folder.Length == 0)
+                    errors.Add("folder must be a nonempty folder name without surrounding whitespace.");
+            }
+            catch (ArgumentException ex) { errors.Add(ex.Message); }
+        }
         if (m.Description?.Length > 4000) errors.Add("description is longer than 4000 characters.");
         if (m.InstallationMode == InstallationMode.VerifiedUnattended && string.IsNullOrWhiteSpace(m.VerifiedProfileId))
             errors.Add("VerifiedUnattended requires a verifiedProfileId. A declaration does not verify a profile.");

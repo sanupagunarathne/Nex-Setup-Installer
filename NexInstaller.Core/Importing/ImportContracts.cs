@@ -2,7 +2,7 @@ using NexInstaller.Core.Packages;
 namespace NexInstaller.Core.Importing;
 
 public sealed record PackageImportRequest(string SourcePath, string? EntryPoint, string Name, string Version,
-    PackageArchitecture Architecture, string Category, string? Description = null, bool RequiresAdministrator = false);
+    PackageArchitecture Architecture, string Category, string? Description = null, bool RequiresAdministrator = false, string? Folder = null);
 public sealed record PackageImportResult(bool Imported, string Message, PackageManifest? Manifest = null);
 public sealed record VerificationResult(string PackageId, IReadOnlyList<string> Problems)
 {

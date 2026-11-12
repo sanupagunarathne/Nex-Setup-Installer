@@ -11,7 +11,7 @@ using NexInstaller.Infrastructure.Configuration;
 
 namespace NexInstaller.App.ViewModels;
 
-public sealed class ShellViewModel : ObservableObject, IDisposable
+public sealed partial class ShellViewModel : ObservableObject, IDisposable
 {
     private readonly NavigationState navigation;
     private readonly ILibrarySnapshotService inventory;
@@ -56,7 +56,7 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null, IPresetService? presetService = null, IHistoryService? historyService = null, IPresetsHistoryDialogs? presetsDialogs = null)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null, IPresetService? presetService = null, IHistoryService? historyService = null, IPresetsHistoryDialogs? presetsDialogs = null, ILibraryRemovalService? libraryRemoval = null)
     {
         this.navigation = navigation;
         this.inventory = inventory;
@@ -70,8 +70,11 @@ public sealed class ShellViewModel : ObservableObject, IDisposable
         Presets.Presets.CollectionChanged += (_, _) => Raise(nameof(PresetCount));
         History.PropertyChanged += (_, args) => { if (args.PropertyName == nameof(HistoryViewModel.RecentCount)) Raise(nameof(SessionCount)); };
         SoftwareLibrary.InstallationQueue = InstallationQueue;
-        PackageManager = new(this, packageImports, categories, dialogs);
+        PackageManager = new(this, packageImports, categories, dialogs, presetService);
         FontLibrary = new(this, fontImports, dialogs);
+        removal = libraryRemoval; removalDialogs = dialogs;
+        SoftwareLibrary.DeleteSelectedCommand = new(DeleteSelectedAppsAsync, ex => SoftwareLibrary.ManagementStatus = ex.Message);
+        FontLibrary.DeleteSelectedCommand = new(DeleteSelectedFontAsync, ex => FontLibrary.ReportRemoval(ex.Message));
         pages = new()
         {
             [PageId.Dashboard] = new DashboardViewModel(this),

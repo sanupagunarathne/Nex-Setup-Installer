@@ -24,6 +24,59 @@ See the [Phase 5 presets/history guide](docs/PHASE-5.md),
 Native Windows execution, UAC and visual acceptance testing remain outstanding;
 the Linux validation uses fake installers and Windows cross-compilation.
 
+## Custom library folders
+
+To remove saved files, select an app in **Apps** and use **Delete selected**.
+Checked apps are deleted together; when none are checked, the highlighted app
+is deleted. In **Fonts**, highlight a font and use **Delete selected font**.
+Both actions ask for confirmation, remove affected pending queue entries, and
+move library copies into `.trash/<operation-id>/`, preserving relative paths for
+manual recovery. Shared installer files are retained while another app manifest
+references them. Source files and installed software/fonts are unchanged.
+Saved setups keep their references and report missing items until updated or
+the corresponding library files are restored. Deletion is blocked during active
+installations and imports. **Remove chosen file** clears an unsaved single-app
+selection; each installer in a collection draft also has a **Remove** button.
+
+For a batch of installers, open **Add files → Import several apps as a collection /
+preset**. Name the collection, choose multiple EXE/MSI files, and review their app
+names and versions. Use **Add complete installer folder** for setups that need
+supporting files. **Save collection** copies new packages into the named folder;
+the checked **Also save as a reusable installation preset** option creates a
+setup under **Saved setups** for repeated installations on client laptops.
+Existing identical installers are reused without copying or moving them. If an
+import fails, completed imports are retained and no new preset is saved; fix the
+source and retry. Uncheck the preset option to save only the collection folder.
+
+When adding an app, use **Save in library folder** on the app details step.
+Type a name such as **Adobe**, or select a folder used by an earlier import.
+Repeat for each installer you want to keep there. Complete installation folders
+still retain their supporting files and their chosen EXE/MSI entry point.
+Use the folder filter in Apps, select the apps you need, and add them to the
+install list for each client.
+
+Fonts have the same optional destination folder field. Choose it before adding
+font files or importing a source folder, then use the font folder filter to
+browse the saved collection. **Add all fonts shown to install list** queues the
+visible collection after license confirmation. Imports only save files;
+installation starts separately through the install list.
+Both font picker buttons open even when the license checkbox is unchecked. After
+source selection, license confirmation is requested before any copying; cancelling
+the picker or declining confirmation leaves the library unchanged.
+
+Named destinations are stored beneath `packages/folders/<name>/` and
+`fonts/folders/<name>/` in the portable library. Each import retains its own
+package ID or font hash directory to prevent filename collisions. Folder names
+are single names of up to 80 characters, with Windows filename rules. Leave the
+field blank to keep using unfiled storage. Existing libraries remain readable,
+and duplicate content is still rejected across the library. Folders become
+available in the picker after a successful import; existing files are not moved.
+
+The dark theme uses `#011526` for its background, `#025373` for surfaces,
+`#F2F0F2` for text, `#79C4F2` / `#048ABF` for blue accents, and `#FFCA29` for actions.
+Empty text-field hints disappear on focus and return when an empty field loses
+focus.
+
 ## Solution
 
 ```text
@@ -112,4 +165,5 @@ rewriting either branch's history.
 Installer binaries, fonts, logs, local caches, and customer data are ignored.
 Populate the real offline library separately; commit only safe examples,
 schemas, configuration, and empty directory markers. Manifest parsing and discovery are implemented in Phase 2. Phase 3 includes imports, SHA-256 checks, font import, and category metadata editing.
-Full package replacement/removal and other library management remain future work.
+Package replacement and additional library management remain future work; app and
+font removal are available from their library pages.

@@ -19,6 +19,7 @@ public sealed record PackageManifest
     public required PackageArchitecture Architecture { get; init; }
     public required string Category { get; init; }
     public string? Description { get; init; }
+    public string? Folder { get; init; }
     public required InstallerType InstallerType { get; init; }
     public InstallationMode InstallationMode { get; init; } = InstallationMode.Manual;
     public string? VerifiedProfileId { get; init; }

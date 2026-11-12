@@ -26,6 +26,9 @@ public partial class MainWindow : Window
             "github" => "https://github.com/sanupagunarathne",
             "linkedin" => "https://www.linkedin.com/in/sanupagunarathne/",
             "instagram" => "https://www.instagram.com/sanuoa.p/",
+            "rusith-github" => "https://github.com/Rusiya001",
+            "rusith-linkedin" => "https://www.linkedin.com/in/rusith-minol-weerasiri/",
+            "rusith-instagram" => "https://www.instagram.com/rusiy._.a/",
             _ => null
         };
         if (url is null) return;

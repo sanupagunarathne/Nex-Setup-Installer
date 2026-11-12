@@ -39,6 +39,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
     public bool HasStarted { get; private set; }
     public bool IsBusy { get => busy; private set { busy = value; Raise(); Raise(nameof(IsIdle)); } }
     public bool IsIdle => !IsBusy;
+    public bool IsLibraryChanging { get; set; }
     public double Percent { get => percent; private set { percent = value; Raise(); } }
     public bool ContinueOnFailure { get; set; }
     public string Status { get => status; private set { status = value; Raise(); } }
@@ -71,6 +72,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
     }
     public async Task StartAsync()
     {
+        if (IsLibraryChanging) { Status = "Wait for the library change to finish before starting installation."; return; }
         if (IsBusy) return;
         if (Items.Count == 0) { Status = "The installation queue is empty."; return; }
         if (engine is null) { Status = "Installation services are unavailable."; return; }

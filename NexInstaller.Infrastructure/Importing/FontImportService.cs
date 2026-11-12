@@ -11,12 +11,22 @@ public sealed class FontImportService(LibraryStorage storage) : IFontImportServi
         LibraryStorage.CheckPath(storage.Paths.Fonts);
         if (!Directory.Exists(storage.Paths.Fonts)) return [];
         return LibraryStorage.Files(storage.Paths.Fonts).Where(Supported).Select(path =>
-            new FontRecord(Path.GetFileName(path), path, LibraryStorage.Hash(path, token))).ToArray();
+            new FontRecord(Path.GetFileName(path), path, LibraryStorage.Hash(path, token))
+            {
+                Folder = GetFolder(path)
+            }).ToArray();
     }, token);
 
-    public Task<IReadOnlyList<FontImportResult>> ImportAsync(IReadOnlyList<string> sources, bool licenseConfirmed, IProgress<string>? progress = null, CancellationToken token = default) => Task.Run<IReadOnlyList<FontImportResult>>(() =>
+    private string GetFolder(string path)
+    {
+        var parts = Path.GetRelativePath(storage.Paths.Fonts, path).Replace('\\', '/').Split('/');
+        return parts.Length >= 4 && parts[0] == "folders" ? parts[1] : "";
+    }
+
+    public Task<IReadOnlyList<FontImportResult>> ImportAsync(IReadOnlyList<string> sources, bool licenseConfirmed, IProgress<string>? progress = null, CancellationToken token = default, string? folder = null) => Task.Run<IReadOnlyList<FontImportResult>>(() =>
     {
         if (!licenseConfirmed) throw new InvalidOperationException("Confirm the font licenses permit use on the destination devices.");
+        var libraryFolder = LibraryFolder.Normalize(folder);
         using var gate = storage.BeginWrite();
         var hashes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         if (Directory.Exists(storage.Paths.Fonts))
@@ -53,7 +63,9 @@ public sealed class FontImportService(LibraryStorage storage) : IFontImportServi
                 ValidateFont(source);
                 var hash = LibraryStorage.Hash(source, token);
                 if (hashes.Contains(hash)) { results.Add(new(source, "Duplicate", "Identical font content already exists.")); continue; }
-                var targetDirectory = Path.Combine(storage.Paths.Fonts, hash.ToLowerInvariant());
+                var targetDirectory = libraryFolder.Length == 0
+                    ? Path.Combine(storage.Paths.Fonts, hash.ToLowerInvariant())
+                    : Path.Combine(storage.Paths.Fonts, "folders", libraryFolder, hash.ToLowerInvariant());
                 storage.CreateDirectory(targetDirectory);
                 temporary = Path.Combine(targetDirectory, Guid.NewGuid().ToString("N") + ".tmp");
                 using (var input = File.OpenRead(source))
