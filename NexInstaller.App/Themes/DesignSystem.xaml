@@ -103,6 +103,7 @@
         <Style.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="Background" Value="{StaticResource BorderBrush}"/></Trigger></Style.Triggers>
     </Style>
     <Style TargetType="ListBox">
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/><Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/><Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/><Setter Property="Foreground" Value="{StaticResource TextBrush}"/><Setter Property="BorderThickness" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     </Style>
     <Style TargetType="ListBoxItem">

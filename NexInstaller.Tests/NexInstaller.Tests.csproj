@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="../NexInstaller.Core/NexInstaller.Core.csproj" />
     <ProjectReference Include="../NexInstaller.Infrastructure/NexInstaller.Infrastructure.csproj" />
+    <Compile Include="../NexInstaller.App/Behaviors/ScrollMotion.cs" Link="Behaviors/ScrollMotion.cs" />
     <!-- Exercise framework-neutral view models on Linux without loading WPF. -->
     <Compile Include="../NexInstaller.App/ViewModels/*.cs" Link="ViewModels/%(Filename)%(Extension)" />
   </ItemGroup>
