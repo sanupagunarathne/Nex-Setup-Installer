@@ -150,6 +150,7 @@ public sealed partial class PackageManagerViewModel : ImportWorkspace
 
 public sealed class FontLibraryViewModel : ImportWorkspace
 {
+    public FolderToolsViewModel FolderTools { get; }
     public AsyncCommand? DeleteSelectedCommand { get; set; }
     public void ReportRemoval(string message) => Status = message;
     private readonly ShellViewModel shell;
@@ -159,6 +160,7 @@ public sealed class FontLibraryViewModel : ImportWorkspace
         : base("Fonts", "Add licensed fonts and choose the ones this laptop needs.")
     {
         this.shell = shell; this.importer = importer; this.dialogs = dialogs;
+        FolderTools = new(shell, LibrarySection.Fonts, () => SelectedFont is { } font ? [Path.GetRelativePath(shell.LibraryRoot, font.Path).Replace('\\', '/')] : [], message => Status = message);
         BrowseFilesCommand = new(ImportFilesAsync, ex => Status = ex.Message);
         BrowseFolderCommand = new(ImportFolderAsync, ex => Status = ex.Message);
     }
@@ -173,7 +175,7 @@ public sealed class FontLibraryViewModel : ImportWorkspace
     public ObservableCollection<string> Folders { get; } = [];
     public ObservableCollection<CategoryOption> FolderFilters { get; } = [new("All folders", null)];
     private CategoryOption selectedFolder = new("All folders", null);
-    public CategoryOption SelectedFolder { get => selectedFolder; set { selectedFolder = value ?? new("All folders", null); Raise(); FilterFonts(); } }
+    public CategoryOption SelectedFolder { get => selectedFolder; set { selectedFolder = value ?? new("All folders", null); Raise(); FilterFonts(); if (selectedFolder.Value is { } name) Folder = name; } }
     public RelayCommand QueueFolderCommand => new(() =>
     {
         foreach (var font in Fonts) InstallationQueue.AddFont(font, shell.LibraryRoot, LicenseConfirmed);
@@ -194,15 +196,19 @@ public sealed class FontLibraryViewModel : ImportWorkspace
         if (importer is null) return;
         try
         {
-            var fonts = await importer.ListAsync(); allFonts.Clear(); allFonts.AddRange(fonts);
+            var folders = shell.LibraryFolders is null ? LibraryFolderInventory.Empty : await shell.LibraryFolders.ReadAsync(LibrarySection.Fonts);
+            var fonts = (await importer.ListAsync()).Select(font => font with { Folder = folders.Resolve(Path.GetRelativePath(shell.LibraryRoot, font.Path).Replace('\\', '/'), font.Folder) }).ToArray();
+            allFonts.Clear(); allFonts.AddRange(fonts);
             var previousFolder = SelectedFolder.Value;
             var destinationFolder = Folder;
             Folders.Clear();
-            foreach (var name in fonts.Select(font => font.Folder).Where(name => name.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) Folders.Add(name);
+            foreach (var name in fonts.Select(font => font.Folder).Concat(folders.Folders).Where(name => name.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) Folders.Add(name);
+            FolderTools.Load(Folders);
             Folder = destinationFolder;
             FolderFilters.Clear(); FolderFilters.Add(new("All folders", null)); FolderFilters.Add(new("Unfiled fonts", ""));
             foreach (var name in Folders) FolderFilters.Add(new(name, name));
-            SelectedFolder = FolderFilters.FirstOrDefault(option => option.Value == previousFolder) ?? FolderFilters[0];
+            selectedFolder = FolderFilters.FirstOrDefault(option => option.Value == previousFolder) ?? FolderFilters[0];
+            Raise(nameof(SelectedFolder)); FilterFonts();
         }
         catch (Exception ex) { allFonts.Clear(); Fonts.Clear(); Folders.Clear(); SelectedFont = null; Status = "Cannot read fonts: " + ex.Message; }
     }

@@ -26,6 +26,32 @@ the Linux validation uses fake installers and Windows cross-compilation.
 
 ## Custom library folders
 
+In **Apps**, **Fonts**, and **Saved setups**, click **+ New folder**, enter a
+name, and click **Create**. The new folder appears as a tile without hiding
+the current file list. Click a folder tile to open it, or **All files** to
+return to the full list. Select items, choose a destination, and click **Move**.
+Apps move all checked rows, or the highlighted row if none are checked; fonts
+and setups move the highlighted item. Choose **Unfiled** to remove membership.
+Save or discard setup edits before moving a saved setup.
+
+Each named folder tile has a **Delete** button. After confirmation, the folder
+disappears and its contents become **Unfiled**; saved files, setup references,
+and pending installations are retained. **All files** and **Unfiled** cannot be
+deleted. This also works for folders created during import.
+
+Opening an app or font folder selects it as the destination for
+the next import. New setups save into the open setup folder. Folders are single
+level and separate for apps, fonts, and setups; empty created folders survive
+restarts. Membership changes are stored in `library-folders-*.json` beside the
+library directories. Moving an existing item changes its in-app organization
+while preserving payload paths, pending queue entries, and saved font references.
+Keep these metadata files when copying or backing up the portable library.
+
+To delete a saved setup, select it in **Saved setups** and click
+**Delete selected setup**. Confirming discards its unsaved edits and moves its
+JSON into `.trash`, retaining its apps, fonts, and pending install list. Cancelling
+preserves the saved setup and any draft edits.
+
 To remove saved files, select an app in **Apps** and use **Delete selected**.
 Checked apps are deleted together; when none are checked, the highlighted app
 is deleted. In **Fonts**, highlight a font and use **Delete selected font**.
@@ -70,7 +96,7 @@ package ID or font hash directory to prevent filename collisions. Folder names
 are single names of up to 80 characters, with Windows filename rules. Leave the
 field blank to keep using unfiled storage. Existing libraries remain readable,
 and duplicate content is still rejected across the library. Folders become
-available in the picker after a successful import; existing files are not moved.
+available in the picker after creation or a successful import.
 
 The dark theme uses `#011526` for its background, `#025373` for surfaces,
 `#F2F0F2` for text, `#79C4F2` / `#048ABF` for blue accents, and `#FFCA29` for actions.
@@ -111,6 +137,12 @@ permits cross-compilation on Linux; **WPF execution and visual validation requir
 Windows**. Tests target `net10.0` and link the framework-neutral view model source
 so navigation and refresh behavior can be tested without loading WPF.
 No test launches any installer or writes fonts to the operating system.
+
+On Windows, `dotnet run --project tools/UiChecks -c Release` also exercises
+the real WPF bindings and layout on an STA dispatcher without opening a window.
+It checks folder creation, repeated creation, moving fonts, busy-state cleanup,
+readable dropdown labels, and the top font Delete button. Rendered page previews
+are saved to `artifacts/ui-checks/`. It uses a temporary fixture library only.
 
 SDK and NuGet dependency downloads are development-time requirements. The app
 has no network client, online package manager, remote API, telemetry, or cloud

@@ -38,8 +38,8 @@ public sealed class LibraryRemovalService(LibraryStorage storage) : ILibraryRemo
         foreach (var source in paths)
         {
             var full = Path.GetFullPath(source);
-            if (!LibraryStorage.IsWithin(full, storage.Paths.Packages) && !LibraryStorage.IsWithin(full, storage.Paths.Manifests) && !LibraryStorage.IsWithin(full, storage.Paths.Fonts))
-                throw new InvalidDataException("Deletion is limited to saved app manifests, installers, and fonts.");
+            if (!LibraryStorage.IsWithin(full, storage.Paths.Packages) && !LibraryStorage.IsWithin(full, storage.Paths.Manifests) && !LibraryStorage.IsWithin(full, storage.Paths.Fonts) && !LibraryStorage.IsWithin(full, storage.Paths.Presets))
+                throw new InvalidDataException("Deletion is limited to saved app manifests, installers, fonts, and presets.");
             LibraryStorage.CheckPath(full);
             if (!File.Exists(full)) continue;
             var target = Path.GetFullPath(Path.Combine(trash, Path.GetRelativePath(storage.Paths.Root, full)));
@@ -64,4 +64,14 @@ public sealed class LibraryRemovalService(LibraryStorage storage) : ILibraryRemo
             throw;
         }
     }
+
+    public Task RemovePresetAsync(string id, CancellationToken token = default) => Task.Run(() =>
+    {
+        if (!Guid.TryParseExact(id, "N", out _) || id != id.ToLowerInvariant()) throw new InvalidDataException("Invalid preset ID.");
+        using var gate = storage.BeginWrite();
+        var path = Path.Combine(storage.Paths.Presets, id + ".json");
+        LibraryStorage.CheckPath(path);
+        if (!File.Exists(path)) throw new FileNotFoundException("Preset no longer exists. Refresh the library.");
+        MoveToTrash([path], token);
+    }, token);
 }

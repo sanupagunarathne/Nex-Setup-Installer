@@ -4,6 +4,7 @@ using System.Text;
 using NexInstaller.Core.History;
 using NexInstaller.Core.Installation;
 using NexInstaller.Core.Presets;
+using NexInstaller.Core.Importing;
 namespace NexInstaller.App.ViewModels;
 
 public interface IPresetsHistoryDialogs
@@ -20,6 +21,32 @@ public sealed class PresetItemViewModel(PresetItem item, Action<PresetItemViewMo
 }
 public sealed class PresetsViewModel : ImportWorkspace
 {
+    public FolderToolsViewModel FolderTools { get; }
+    public AsyncCommand? DeleteSelectedCommand { get; set; }
+    public void ReportManagement(string message) => Status = message;
+    public void ClearDeletedDraft() => LoadDraft(null);
+    private readonly List<InstallationPreset> allPresets = [];
+    private LibraryFolderInventory folders = LibraryFolderInventory.Empty;
+    public ObservableCollection<InstallationPreset> VisiblePresets { get; } = [];
+    public ObservableCollection<CategoryOption> FolderFilters { get; } = [new("All folders", null), new("Unfiled setups", "")];
+    private CategoryOption selectedFolder = new("All folders", null);
+    public CategoryOption SelectedFolder
+    {
+        get => selectedFolder;
+        set
+        {
+            if (loading) return;
+            var next = value ?? new CategoryOption("All folders", null);
+            if (IsBusy || (IsDirty && dialogs?.DiscardPresetEdits() != true)) { Raise(); return; }
+            selectedFolder = next; Raise(); FilterPresets();
+            LoadDraft(VisiblePresets.FirstOrDefault());
+        }
+    }
+    private void FilterPresets()
+    {
+        VisiblePresets.Clear();
+        foreach (var preset in allPresets.Where(preset => SelectedFolder.Value is null || string.Equals(folders.Resolve(preset.Id), SelectedFolder.Value, StringComparison.OrdinalIgnoreCase))) VisiblePresets.Add(preset);
+    }
     private readonly ShellViewModel shell;
     private readonly IPresetService? service;
     private readonly IPresetsHistoryDialogs? dialogs;
@@ -32,6 +59,7 @@ public sealed class PresetsViewModel : ImportWorkspace
         : base("Saved setups", "Keep your usual app and font choices ready to reuse.")
     {
         this.shell = shell; this.service = service; this.dialogs = dialogs;
+        FolderTools = new(shell, LibrarySection.Presets, () => IsDirty ? throw new InvalidOperationException("Save or discard preset edits before moving the setup.") : SelectedPreset is { } preset ? [preset.Id] : [], message => Status = message);
         Items.CollectionChanged += (_, _) => { if (!loading) MarkDirty(); };
         NewCommand = new(() => { if (!IsBusy && (!IsDirty || dialogs?.DiscardPresetEdits() == true)) LoadDraft(null); });
         AddSoftwareCommand = new(() => { if (!IsBusy) foreach (var row in shell.SoftwareLibrary.SelectedPackages) Add(new() { Kind = InstallationKind.Software, PackageId = row.Package.Manifest.Id }); });
@@ -91,12 +119,20 @@ public sealed class PresetsViewModel : ImportWorkspace
         if (service is null) return;
         try
         {
-            var inventory = await service.ListAsync(); IsLoaded = true; Diagnostics = inventory.Warnings; var previousId = selectId ?? selected?.Id;
+            var inventory = await service.ListAsync();
+            folders = shell.LibraryFolders is null ? LibraryFolderInventory.Empty : await shell.LibraryFolders.ReadAsync(LibrarySection.Presets);
+            IsLoaded = true; Diagnostics = inventory.Warnings; var previousId = selectId ?? selected?.Id;
             loading = true;
             try
             {
                 Presets.Clear(); foreach (var preset in inventory.Presets) Presets.Add(preset);
-                selected = Presets.FirstOrDefault(preset => preset.Id == previousId) ?? (IsDirty ? null : Presets.FirstOrDefault());
+                allPresets.Clear(); allPresets.AddRange(inventory.Presets);
+                var previousFolder = selectId is not null ? folders.Resolve(selectId) : SelectedFolder.Value;
+                FolderFilters.Clear(); FolderFilters.Add(new("All folders", null)); FolderFilters.Add(new("Unfiled setups", ""));
+                foreach (var name in folders.Folders) FolderFilters.Add(new(name, name));
+                selectedFolder = FolderFilters.FirstOrDefault(option => option.Value == previousFolder) ?? FolderFilters[0]; Raise(nameof(SelectedFolder));
+                FolderTools.Load(folders.Folders); FilterPresets();
+                selected = VisiblePresets.FirstOrDefault(preset => preset.Id == previousId) ?? (IsDirty ? null : VisiblePresets.FirstOrDefault());
                 Raise(nameof(SelectedPreset));
             }
             finally { loading = false; }
@@ -109,6 +145,8 @@ public sealed class PresetsViewModel : ImportWorkspace
     {
         var preset = new InstallationPreset { SchemaVersion = 1, Id = id, Name = PresetName, Items = Items.Select(row => row.Item).ToArray() };
         await Require(service).SaveAsync(preset, token);
+        if (selected is null && SelectedFolder.Value is { Length: > 0 } destination && shell.LibraryFolders is not null)
+            await shell.LibraryFolders.AssignAsync(LibrarySection.Presets, [preset.Id], destination, token);
         await ReloadAsync(preset.Id); await shell.RefreshAsync(); Status = "Preset saved as portable JSON.";
     });
     public Task StartAsync() => Work(async token =>

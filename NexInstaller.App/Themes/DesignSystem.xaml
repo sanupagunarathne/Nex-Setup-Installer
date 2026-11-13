@@ -93,7 +93,7 @@
                 <ToggleButton IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Focusable="False">
                     <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="{StaticResource BackgroundBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10"><TextBlock Text="⌄" HorizontalAlignment="Right" Foreground="{StaticResource AccentBrush}" /></Border></ControlTemplate></ToggleButton.Template>
                 </ToggleButton>
-                <ContentPresenter x:Name="SelectionPresenter" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="12,10,32,10" IsHitTestVisible="False" />
+                <ContentPresenter x:Name="SelectionPresenter" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}" ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}" Margin="12,10,32,10" VerticalAlignment="Center" IsHitTestVisible="False" />
                 <TextBox x:Name="PART_EditableTextBox" Visibility="Collapsed" Margin="12,10,32,10" Background="Transparent" Foreground="{TemplateBinding Foreground}" IsReadOnly="{TemplateBinding IsReadOnly}" AutomationProperties.Name="Custom folder name">
                     <TextBox.Template><ControlTemplate TargetType="TextBox"><ScrollViewer x:Name="PART_ContentHost"/></ControlTemplate></TextBox.Template>
                 </TextBox>
