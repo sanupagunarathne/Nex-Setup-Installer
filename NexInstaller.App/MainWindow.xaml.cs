@@ -15,7 +15,7 @@ public partial class MainWindow : Window
         {
             if (!viewModel.InstallationQueue.IsBusy) return;
             args.Cancel = true;
-            MessageBox.Show(this, "An installation queue is active. Stop the queue and wait for the current installer to finish before closing NEX.", "Installation in progress", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(this, "An installation queue is active. Stop the queue and wait for the current installer to finish before closing STAK.", "Installation in progress", MessageBoxButton.OK, MessageBoxImage.Information);
         };
         Loaded += async (_, _) => await viewModel.RefreshAsync();
     }
@@ -33,6 +33,6 @@ public partial class MainWindow : Window
         };
         if (url is null) return;
         try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
-        catch (Exception) { MessageBox.Show(this, "Your browser could not open this profile. Internet access is needed for social websites; NEX itself still works offline.", "Open profile", MessageBoxButton.OK, MessageBoxImage.Information); }
+        catch (Exception) { MessageBox.Show(this, "Your browser could not open this profile. Internet access is needed for social websites; STAK itself still works offline.", "Open profile", MessageBoxButton.OK, MessageBoxImage.Information); }
     }
 }

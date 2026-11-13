@@ -56,7 +56,7 @@ handling belong to Phase 4.
 Imports reject linked/reparse-point source paths, unsafe portable file names,
 source/library nesting, traversal, unsupported entry points, and case-insensitive
 payload path collisions. Libraries are locked exclusively for mutations to
-prevent cooperating NEX instances writing concurrently; lock files contain no
+prevent cooperating STAK instances writing concurrently; lock files contain no
 customer details and can remain on disk. Read-only locations or busy locks produce
 UI errors. Payload files and real local category data stay outside Git.
 
@@ -66,7 +66,7 @@ fonts remain after cancellation. Refresh to see those completed imports. Existin
 library files are never overwritten by imports. Empty newly created folders and
 lock files may remain. Power loss/process termination can leave staging files or
 an unreferenced payload folder; no unfinished JSON manifest is discovered. Inspect
-these only after closing all NEX instances. Do not remove active staging data.
+these only after closing all STAK instances. Do not remove active staging data.
 Filesystem checks are snapshots and do not replace execution-time security checks.
 
 Import progress shows the current stage/file with an indeterminate progress bar.

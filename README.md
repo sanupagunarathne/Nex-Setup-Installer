@@ -1,4 +1,4 @@
-# NEX Installer
+# STAK Installer
 
 Portable, offline Windows software and font installation workspace.
 
@@ -98,8 +98,11 @@ field blank to keep using unfiled storage. Existing libraries remain readable,
 and duplicate content is still rejected across the library. Folders become
 available in the picker after creation or a successful import.
 
-The dark theme uses `#011526` for its background, `#025373` for surfaces,
-`#F2F0F2` for text, `#79C4F2` / `#048ABF` for blue accents, and `#FFCA29` for actions.
+The STAK theme uses `#121212` for the background, `#2F3036` for surfaces,
+and `#FAF5F8` for text and primary actions. The stack logo is embedded in the
+Windows executable and displayed in the title bar, taskbar, and sidebar.
+The editable logo is `NexInstaller.App/Assets/STAK.svg`; regenerate its multi-size
+Windows icon and sidebar PNG with `./tools/Create-AppIcon.ps1` on Windows.
 Empty text-field hints disappear on focus and return when an empty field loses
 focus.
 
@@ -151,7 +154,7 @@ packs and NuGet dependencies. No installer packages are bundled with this source
 
 ## Run with a portable library
 
-Place the external `package-library` directory beside `NexInstaller.exe`, or set
+Place the external `package-library` directory beside `STAKInstaller.exe`, or set
 `libraryRoot` in the adjacent `nexinstaller.json` to a relative or absolute path.
 Relative roots resolve against the executable location, regardless of the
 terminal's working directory. Restart after editing configuration. There are
@@ -181,7 +184,7 @@ Structured JSONL logs use `logs` beside the executable, falling back to
 startup; Settings reports its availability. Logs contain application events and
 exception types, not customer identities or exception payloads. Inventory notices
 and Settings show local paths. Logs remain local; rotation and retention are
-future work. The shell runs `asInvoker`; an installer requiring elevation uses a standard Windows UAC request. Fonts are installed for the account running NEX.
+future work. The shell runs `asInvoker`; an installer requiring elevation uses a standard Windows UAC request. Fonts are installed for the account running STAK.
 
 See [portable deployment](docs/PORTABLE.md) and
 [development scope and validation](docs/DEVELOPMENT.md).

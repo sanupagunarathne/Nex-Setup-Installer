@@ -19,7 +19,7 @@ are Phase 6 work and have not been performed in Phase 1.
 
 ```text
 portable/
-  NexInstaller.exe
+  STAKInstaller.exe
   nexinstaller.json
   package-library/
     packages/

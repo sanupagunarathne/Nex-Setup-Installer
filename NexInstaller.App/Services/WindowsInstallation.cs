@@ -33,7 +33,7 @@ public sealed class WindowsInstallationExecutor : IInstallationExecutor
                 try
                 {
                     try { acquired = gate.WaitOne(0); } catch (AbandonedMutexException) { acquired = true; }
-                    if (!acquired) throw new IOException("Another NEX instance is installing fonts.");
+                    if (!acquired) throw new IOException("Another STAK instance is installing fonts.");
                     var directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "Windows", "Fonts");
                     return new UserFontInstaller(directory, new WindowsUserFontApi()).Install(plan);
                 }

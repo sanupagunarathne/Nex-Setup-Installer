@@ -10,11 +10,14 @@
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <PublishTrimmed>false</PublishTrimmed>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <AssemblyName>NexInstaller</AssemblyName>
-    <Product>NEX Installer</Product>
+    <ApplicationIcon>Assets/STAK.ico</ApplicationIcon>
+    <AssemblyName>STAKInstaller</AssemblyName>
+    <Product>STAK Installer</Product>
     <Version>0.5.2</Version>
   </PropertyGroup>
   <ItemGroup>
+    <Resource Include="Assets/STAK.ico" />
+    <Resource Include="Assets/STAK.png" />
     <ProjectReference Include="../NexInstaller.Core/NexInstaller.Core.csproj" />
     <ProjectReference Include="../NexInstaller.Infrastructure/NexInstaller.Infrastructure.csproj" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />

@@ -42,6 +42,11 @@ internal static class Program
             using var shell = new ShellViewModel(new NavigationState(), new FileSystemLibrarySnapshotService(paths), new LoadedConfiguration(paths, "test", null), new Log(), catalog,
                 fontImports: new FontImportService(storage), presetService: new JsonPresetService(paths, catalog), libraryFolders: new LibraryFolderService(storage), dialogs: new Dialogs());
             Pump(shell.RefreshAsync());
+            var window = new NexInstaller.App.MainWindow(shell);
+            Check(window.Title == "STAK Installer" && window.Icon is BitmapFrame, "STAK name and window/taskbar icon must load.");
+            Check(((Color)app.FindResource("BackgroundColor")) == Color.FromRgb(18, 18, 18), "STAK background palette must load.");
+            Check(((Color)app.FindResource("SurfaceColor")) == Color.FromRgb(47, 48, 54), "STAK surface palette must load.");
+            Check(((SolidColorBrush)app.FindResource("TextBrush")).Color == Color.FromRgb(250, 245, 248), "STAK text palette must load.");
             var fonts = new FontLibraryView { DataContext = shell.FontLibrary, Foreground = (Brush)app.FindResource("TextBrush") };
             Layout(fonts);
             var delete = Descendants(fonts).OfType<Button>().Single(button => Equals(button.Content, "Delete selected font"));

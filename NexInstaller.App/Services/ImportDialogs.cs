@@ -31,5 +31,5 @@ public sealed class ImportDialogs : IImportDialogs
     }
     private static bool ShowOwned(CommonDialog dialog) =>
         (Application.Current?.MainWindow is { IsVisible: true } owner ? dialog.ShowDialog(owner) : dialog.ShowDialog()) == true;
-    public bool Confirm(string message) => MessageBox.Show(message, "NEX Installer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+    public bool Confirm(string message) => MessageBox.Show(message, "STAK Installer", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 }

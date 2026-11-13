@@ -28,7 +28,7 @@ executed by adding files. Home, the approved palette and personal footer are kep
 
 Importing was implemented in Phase 3 and can be used now, before release:
 
-1. Run NEX on Windows and check Settings for the active library location.
+1. Run STAK on Windows and check Settings for the active library location.
 2. Use Add files to choose an offline EXE/MSI, or a complete installation folder and
    its setup entry point. Fill the app details, review, then Save to library.
 3. Use Fonts, acknowledge the applicable licenses, then Add font files or Add a font

@@ -96,7 +96,7 @@ public sealed class InstallationQueueViewModel : ObservableObject
             var results = await engine.RunAsync(snapshot.Select(item => item.Request).ToArray(), continueOnFailure, progress, source.Token);
             FinishProgress();
             ApplyResults(snapshot, results);
-            Status = $"{results.Count}/{snapshot.Length} processed. " + (results.Any(result => result.RestartRequired) ? "Restart required or reported by an installer. NEX will not restart Windows." : "No restart reported.") +
+            Status = $"{results.Count}/{snapshot.Length} processed. " + (results.Any(result => result.RestartRequired) ? "Restart required or reported by an installer. STAK will not restart Windows." : "No restart reported.") +
                 " Clear or remove completed items before starting another queue. Re-running requires fresh preflight and confirmations.";
         }
         catch (InstallationSessionException ex) { FinishProgress(); ApplyResults(snapshot, ex.Results); Status = ex.Message; }
