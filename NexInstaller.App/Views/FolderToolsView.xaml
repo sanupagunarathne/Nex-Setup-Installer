@@ -1,0 +1,28 @@
+<UserControl x:Class="NexInstaller.App.Views.FolderToolsView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <StackPanel IsEnabled="{Binding IsIdle}" Margin="0,0,0,8">
+  <WrapPanel>
+   <Button Content="+ New folder" Command="{Binding NewFolderCommand}" Padding="12,8" Margin="0,0,12,8"/>
+   <TextBlock Text="Move selected to:" VerticalAlignment="Center" Margin="0,0,8,8" Style="{StaticResource Caption}"/>
+   <ComboBox ItemsSource="{Binding Destinations}" SelectedItem="{Binding Destination}" DisplayMemberPath="Label" Width="170" MaxHeight="42" AutomationProperties.Name="Move to library folder" Margin="0,0,8,8"/>
+   <Button Content="Move" Command="{Binding MoveCommand}" Padding="12,8" Margin="0,0,0,8"/>
+  </WrapPanel>
+  <WrapPanel Visibility="{Binding IsCreating, Converter={StaticResource BooleanToVisibilityConverter}}">
+   <TextBox Text="{Binding NewFolderName, UpdateSourceTrigger=PropertyChanged}" Width="200" Tag="Folder name" AutomationProperties.Name="New library folder name" Margin="0,0,8,8"/>
+   <Button Content="Create" Command="{Binding CreateCommand}" Style="{StaticResource PrimaryButton}" Margin="0,0,8,8" Padding="12,8"/>
+   <Button Content="Cancel" Command="{Binding CancelCreateCommand}" Margin="0,0,0,8" Padding="12,8"/>
+  </WrapPanel>
+  <ScrollViewer MaxHeight="110" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+   <ItemsControl ItemsSource="{Binding BrowserFolders}">
+    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+    <ItemsControl.ItemTemplate><DataTemplate>
+     <StackPanel Orientation="Horizontal" Margin="0,0,8,6">
+     <Button Command="{Binding OpenCommand}" Padding="12,8" ToolTip="{Binding Name}">
+      <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Foreground="{StaticResource AccentSurfaceBrush}" Margin="0,0,8,0"/><TextBlock Text="{Binding Name}" MaxWidth="170" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/></StackPanel>
+     </Button>
+     <Button Content="Delete" Command="{Binding DeleteCommand}" Padding="8,8" Margin="3,0,0,0" ToolTip="Delete this folder and keep its files in Unfiled" AutomationProperties.Name="{Binding Name, StringFormat='Delete folder {0}'}" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+     </StackPanel>
+    </DataTemplate></ItemsControl.ItemTemplate>
+   </ItemsControl>
+  </ScrollViewer>
+ </StackPanel>
+</UserControl>

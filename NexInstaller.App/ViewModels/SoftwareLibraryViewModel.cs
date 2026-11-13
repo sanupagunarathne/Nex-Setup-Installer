@@ -1,9 +1,13 @@
 using System.Collections.ObjectModel;
 using NexInstaller.Core.Packages;
+using NexInstaller.Core.Importing;
 
 namespace NexInstaller.App.ViewModels;
 
-public sealed record CategoryOption(string Label, string? Value);
+public sealed record CategoryOption(string Label, string? Value)
+{
+    public override string ToString() => Label;
+}
 
 public sealed class PackageRowViewModel(CatalogPackage package, Action selectionChanged) : ObservableObject
 {
@@ -38,6 +42,8 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
 {
     public RelayCommand? OpenAddFilesCommand { get; set; }
     public AsyncCommand? DeleteSelectedCommand { get; set; }
+    public FolderToolsViewModel? FolderTools { get; set; }
+    public Action<string>? FolderSelected { get; set; }
     private string managementStatus = "";
     public string ManagementStatus { get => managementStatus; set { managementStatus = value; Raise(); } }
     public string EmptyActionLabel => all.Count == 0 ? "Add your first app" : "Add another app";
@@ -55,7 +61,7 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
     public ObservableCollection<CategoryOption> Categories { get; } = [new("All groups", null)];
     public ObservableCollection<CategoryOption> Folders { get; } = [new("All folders", null), new("Unfiled apps", "")];
     private CategoryOption selectedFolder = new("All folders", null);
-    public CategoryOption SelectedFolder { get => selectedFolder; set { selectedFolder = value ?? new("All folders", null); Raise(); Filter(); } }
+    public CategoryOption SelectedFolder { get => selectedFolder; set { selectedFolder = value ?? new("All folders", null); Raise(); Filter(); if (selectedFolder.Value is { } name) FolderSelected?.Invoke(name); } }
     public IReadOnlyList<string> Architectures { get; } = ["All computer types", "Any", "X86", "X64", "Arm64"];
     public string Search { get => search; set { search = value ?? ""; Raise(); Filter(); } }
     public string SelectedArchitecture { get => architecture; set { architecture = value ?? "All computer types"; Raise(); Filter(); } }
@@ -70,13 +76,14 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
     public RelayCommand SelectVisibleCommand => new(() => { foreach (var row in Packages) row.IsSelected = true; });
     public RelayCommand ClearSelectionCommand => new(() => { foreach (var row in all) row.IsSelected = false; });
 
-    public void Load(PackageCatalog catalog)
+    public void Load(PackageCatalog catalog, LibraryFolderInventory? folders = null)
     {
+        folders ??= LibraryFolderInventory.Empty;
         var previous = all.Where(row => row.IsSelected).Select(row => row.Package.Manifest.Id).ToHashSet(StringComparer.OrdinalIgnoreCase);
         all.Clear();
         foreach (var package in catalog.Packages)
         {
-            var row = new PackageRowViewModel(package, SelectionChanged);
+            var row = new PackageRowViewModel(package with { Manifest = package.Manifest with { Folder = folders.Resolve(package.Manifest.Id, package.Manifest.Folder ?? "") } }, SelectionChanged);
             all.Add(row);
             row.IsSelected = previous.Contains(package.Manifest.Id);
         }
@@ -88,7 +95,8 @@ public sealed class SoftwareLibraryViewModel() : PageViewModel("Choose apps for 
         Raise(nameof(SelectedCategory));
         var previousFolder = SelectedFolder.Value;
         Folders.Clear(); Folders.Add(new("All folders", null)); Folders.Add(new("Unfiled apps", ""));
-        foreach (var name in all.Select(row => row.Folder).Where(name => name.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) Folders.Add(new(name, name));
+        foreach (var name in all.Select(row => row.Folder).Concat(folders.Folders).Where(name => name.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) Folders.Add(new(name, name));
+        FolderTools?.Load(Folders.Select(option => option.Value ?? ""));
         selectedFolder = Folders.FirstOrDefault(option => option.Value == previousFolder) ?? Folders[0];
         Raise(nameof(SelectedFolder));
         Issues = catalog.Issues.Count == 0 ? "No manifest parsing errors. Unavailable packages show their reasons in details."

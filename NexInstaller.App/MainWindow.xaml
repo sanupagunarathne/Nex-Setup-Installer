@@ -23,7 +23,7 @@
     <Button Grid.Column="1" Content="Refresh files" Command="{Binding RefreshCommand}" VerticalAlignment="Top" ToolTip="Read your saved files and installation records again."/>
    </Grid>
    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Padding="0,0,6,0">
-    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Setter Property="VerticalScrollBarVisibility" Value="Auto"/><Style.Triggers><DataTrigger Binding="{Binding IsHome}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger><DataTrigger Binding="{Binding IsAppsWorkbench}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
+    <ScrollViewer.Style><Style TargetType="ScrollViewer"><Setter Property="VerticalScrollBarVisibility" Value="Auto"/><Style.Triggers><DataTrigger Binding="{Binding IsHome}" Value="True"><Setter Property="VerticalScrollBarVisibility" Value="Disabled"/></DataTrigger></Style.Triggers></Style></ScrollViewer.Style>
     <ContentControl Content="{Binding CurrentPage}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
    </ScrollViewer>
   </Grid>

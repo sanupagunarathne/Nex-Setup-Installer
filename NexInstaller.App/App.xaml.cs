@@ -49,6 +49,7 @@ public partial class App : Application
             registrations.AddSingleton<IInstallationEngine, InstallationEngine>();
             registrations.AddSingleton<LibraryStorage>();
             registrations.AddSingleton<ILibraryRemovalService, LibraryRemovalService>();
+            registrations.AddSingleton<ILibraryFolderService, LibraryFolderService>();
             registrations.AddSingleton<IPackageImportService, PackageImportService>();
             registrations.AddSingleton<IFontImportService, FontImportService>();
             registrations.AddSingleton<ICategoryService, CategoryService>();

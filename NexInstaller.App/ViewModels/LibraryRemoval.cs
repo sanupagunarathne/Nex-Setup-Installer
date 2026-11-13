@@ -8,11 +8,71 @@ public sealed partial class ShellViewModel
     private readonly ILibraryRemovalService? removal;
     private readonly IImportDialogs? removalDialogs;
 
+    public void CheckLibraryManagementAvailable()
+    {
+        if (IsBusy || InstallationQueue.IsBusy || InstallationQueue.IsLibraryChanging || PackageManager.IsBusy || FontLibrary.IsBusy || Presets.IsBusy)
+            throw new InvalidOperationException("Wait for the current installation or library operation to finish before changing the library.");
+    }
     private void CheckRemovalAvailable()
     {
-        if (InstallationQueue.IsBusy || InstallationQueue.IsLibraryChanging || PackageManager.IsBusy || FontLibrary.IsBusy || Presets.IsBusy)
-            throw new InvalidOperationException("Wait for the current installation or library operation to finish before deleting files.");
+        CheckLibraryManagementAvailable();
         if (removal is null || removalDialogs is null) throw new InvalidOperationException("Library deletion is unavailable.");
+    }
+
+    public bool ConfirmFolderDeletion(string name) => (removalDialogs ?? throw new InvalidOperationException("Folder deletion confirmation is unavailable."))
+        .Confirm($"Delete folder '{name}'? Its items will move to Unfiled. Saved files, setups, and pending installations will be kept.");
+
+    public void ClearDeletedFolderDestination(LibrarySection section, string name)
+    {
+        if (section == LibrarySection.Apps && PackageManager.Folder.Equals(name, StringComparison.OrdinalIgnoreCase)) PackageManager.Folder = "";
+        if (section == LibrarySection.Fonts && FontLibrary.Folder.Equals(name, StringComparison.OrdinalIgnoreCase)) FontLibrary.Folder = "";
+    }
+
+    public async Task RefreshFolderSectionAsync(LibrarySection section)
+    {
+        if (section == LibrarySection.Apps)
+        {
+            var current = await catalogService.DiscoverAsync();
+            var folders = LibraryFolders is null ? LibraryFolderInventory.Empty : await LibraryFolders.ReadAsync(section);
+            SoftwareLibrary.Load(current, folders);
+            await PackageManager.ReloadCategoriesAsync();
+        }
+        else if (section == LibrarySection.Fonts) await FontLibrary.ReloadAsync();
+        else await Presets.ReloadAsync();
+    }
+
+    public void SelectLibraryFolder(LibrarySection section, string? folder)
+    {
+        if (section == LibrarySection.Apps)
+        {
+            SoftwareLibrary.SelectedFolder = SoftwareLibrary.Folders.First(option => option.Value == folder);
+            if (folder is not null) PackageManager.Folder = folder;
+        }
+        else if (section == LibrarySection.Fonts)
+        {
+            FontLibrary.SelectedFolder = FontLibrary.FolderFilters.First(option => option.Value == folder);
+            if (folder is not null) FontLibrary.Folder = folder;
+        }
+        else Presets.SelectedFolder = Presets.FolderFilters.First(option => option.Value == folder);
+    }
+
+    public async Task DeleteSelectedPresetAsync()
+    {
+        CheckRemovalAvailable();
+        var preset = Presets.SelectedPreset;
+        if (preset is null) { Presets.ReportManagement("Select a saved setup to delete first."); return; }
+        if (!removalDialogs!.Confirm($"Delete saved setup '{preset.Name}'? Any unsaved edits to this setup will be discarded. A recoverable copy is kept in .trash. Its apps, fonts, and pending install list are retained."))
+        { Presets.ReportManagement("Deletion cancelled."); return; }
+        InstallationQueue.IsLibraryChanging = true;
+        try
+        {
+            await removal!.RemovePresetAsync(preset.Id);
+            Presets.ClearDeletedDraft();
+            await RefreshAsync();
+            Presets.ReportManagement("Saved setup deleted. A recoverable copy is in .trash.");
+            RecordOperation("preset.remove", "Removed a saved setup.");
+        }
+        finally { InstallationQueue.IsLibraryChanging = false; }
     }
 
     public async Task DeleteSelectedAppsAsync()

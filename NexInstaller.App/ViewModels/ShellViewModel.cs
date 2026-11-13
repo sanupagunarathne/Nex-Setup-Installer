@@ -42,6 +42,7 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public PageViewModel CurrentPage => pages[navigation.CurrentPage];
     public LoadedConfiguration Configuration { get; }
     public string LibraryRoot => Configuration.Paths.Root;
+    public ILibraryFolderService? LibraryFolders { get; }
     public string ConfigurationPath => Configuration.SourcePath;
     public string ConfigurationNotice => Configuration.Warning ?? "Configuration loaded. Paths are relative to the application unless an absolute library root is configured.";
     public string LogDirectory => log.LogDirectory ?? "Logging is unavailable. Both local locations may be read-only.";
@@ -56,13 +57,14 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
     public RelayCommand OpenPackagesCommand { get; }
     public RelayCommand OpenPresetsCommand { get; }
 
-    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null, IPresetService? presetService = null, IHistoryService? historyService = null, IPresetsHistoryDialogs? presetsDialogs = null, ILibraryRemovalService? libraryRemoval = null)
+    public ShellViewModel(NavigationState navigation, ILibrarySnapshotService inventory, LoadedConfiguration configuration, ILocalLog log, IPackageCatalogService catalogService, IPackageImportService? packageImports = null, IFontImportService? fontImports = null, ICategoryService? categories = null, IImportDialogs? dialogs = null, IInstallationEngine? installationEngine = null, IPresetService? presetService = null, IHistoryService? historyService = null, IPresetsHistoryDialogs? presetsDialogs = null, ILibraryRemovalService? libraryRemoval = null, ILibraryFolderService? libraryFolders = null)
     {
         this.navigation = navigation;
         this.inventory = inventory;
         this.log = log;
         this.catalogService = catalogService;
         Configuration = configuration;
+        LibraryFolders = libraryFolders;
         InstallationQueue = new(installationEngine) { AfterRunAsync = RefreshAsync };
         presetsAvailable = presetService is not null; historyAvailable = historyService is not null;
         Presets = new(this, presetService, presetsDialogs);
@@ -71,10 +73,16 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
         History.PropertyChanged += (_, args) => { if (args.PropertyName == nameof(HistoryViewModel.RecentCount)) Raise(nameof(SessionCount)); };
         SoftwareLibrary.InstallationQueue = InstallationQueue;
         PackageManager = new(this, packageImports, categories, dialogs, presetService);
+        SoftwareLibrary.FolderSelected = name => PackageManager.Folder = name;
         FontLibrary = new(this, fontImports, dialogs);
         removal = libraryRemoval; removalDialogs = dialogs;
         SoftwareLibrary.DeleteSelectedCommand = new(DeleteSelectedAppsAsync, ex => SoftwareLibrary.ManagementStatus = ex.Message);
         FontLibrary.DeleteSelectedCommand = new(DeleteSelectedFontAsync, ex => FontLibrary.ReportRemoval(ex.Message));
+        Presets.DeleteSelectedCommand = new(DeleteSelectedPresetAsync, ex => Presets.ReportManagement(ex.Message));
+        SoftwareLibrary.FolderTools = new(this, LibrarySection.Apps,
+            () => SoftwareLibrary.SelectedPackages.Count > 0 ? SoftwareLibrary.SelectedPackages.Select(row => row.Package.Manifest.Id).ToArray()
+                : SoftwareLibrary.SelectedPackage is { } row ? [row.Package.Manifest.Id] : [],
+            message => SoftwareLibrary.ManagementStatus = message);
         pages = new()
         {
             [PageId.Dashboard] = new DashboardViewModel(this),
@@ -120,7 +128,8 @@ public sealed partial class ShellViewModel : ObservableObject, IDisposable
                 var newCatalog = await catalogService.DiscoverAsync(lifetime.Token);
                 snapshot = newSnapshot;
                 catalog = newCatalog;
-                SoftwareLibrary.Load(catalog);
+                var folders = LibraryFolders is null ? LibraryFolderInventory.Empty : await LibraryFolders.ReadAsync(LibrarySection.Apps, lifetime.Token);
+                SoftwareLibrary.Load(catalog, folders);
                 await PackageManager.ReloadCategoriesAsync();
                 await FontLibrary.ReloadAsync();
                 await Presets.ReloadAsync();
