@@ -70,22 +70,22 @@ public partial class App : Application
             registrations.AddSingleton<ShellViewModel>();
             registrations.AddSingleton<MainWindow>();
             services = registrations.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true, ValidateScopes = true });
-            services.GetRequiredService<ILocalLog>().TryWrite("application.start", "NEX Installer foundation started.");
+            services.GetRequiredService<ILocalLog>().TryWrite("application.start", "STAK Installer foundation started.");
             MainWindow = services.GetRequiredService<MainWindow>();
             MainWindow.Show();
         }
         catch (Exception ex)
         {
             services?.GetService<ILocalLog>()?.TryWrite("application.start.failed", "Application startup failed.", ex);
-            MessageBox.Show("NEX Installer could not start. Check the local configuration and permissions.",
-                "NEX Installer", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show("STAK Installer could not start. Check the local configuration and permissions.",
+                "STAK Installer", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown(1);
         }
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
-        services?.GetService<ILocalLog>()?.TryWrite("application.exit", "NEX Installer closed.");
+        services?.GetService<ILocalLog>()?.TryWrite("application.exit", "STAK Installer closed.");
         services?.Dispose();
         base.OnExit(e);
     }
